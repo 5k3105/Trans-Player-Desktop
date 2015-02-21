@@ -14,7 +14,6 @@ class YomichanStandalone():
     def __init__(self):
 
         """
-
         :rtype : object
         """
         self.language = japanese.initLanguage()
