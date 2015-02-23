@@ -13,7 +13,7 @@ import update
 #import Translation_Player
 
 
-class MiniReader(QtGui.QPlainTextEdit):
+class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_MainWindowReader
     class State:
         def __init__(self):
             self.filename = unicode()

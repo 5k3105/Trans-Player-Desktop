@@ -38,9 +38,9 @@ class cSubsList(QtGui.QListWidget):
             else:
                 qp.player.pause()
 
-    def loadSubs(self):
+    def loadSubs(self, file):
         self.subs = pysrt.open(
-            "G:\Documents and Settings\\5k3105\Desktop\\anime\sidonia\\timed for [Underwater] release Shidonia_No_Kishi_004.srt",
+            file,
             encoding='utf-8')
 
         g = 0
@@ -287,29 +287,24 @@ class cVideoWidget(Phonon.VideoWidget):
 
 if __name__ == "__main__":
     qapp = QtGui.QApplication(sys.argv)
-    qp = QPlayer()
-
-    subsList = cSubsList()
-    subsList.itemDoubleClicked.connect(subsList.gotoLine)
-
     w = YomichanStandalone()
 
+    # Video Player
     dockVideo = QtGui.QDockWidget("Translation Player", w.window)
-
+    qp = QPlayer()
     dockVideo.setWidget(qp)
     w.window.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockVideo)
     fn = "G:/Documents and Settings/5k3105/Desktop/anime/sidonia/[DeadFish] Sidonia no Kishi - 04 [720p][AAC].mp4"
     qp.fileEdit = fn
 
-    # w.window.verticalLayout_4.removeWidget(w.window.textContent)
-    w.window.textContent.hide()
+    # Transcript List
+    subsList = cSubsList()
+    subsList.itemDoubleClicked.connect(subsList.gotoLine)
+    w.window.textContent.hide()  # w.window.verticalLayout_4.removeWidget(w.window.textContent)
     w.window.verticalLayout_4.addChildWidget(subsList)
+    subsList.loadSubs("G:\Documents and Settings\\5k3105\Desktop\\anime\sidonia\\timed for [Underwater] release Shidonia_No_Kishi_004.srt")
 
-    # dock2 = QtGui.QDockWidget("Subs List", w.window)
-    # dock2.setWidget(subsList)
-    # w.window.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock2)
-    subsList.loadSubs()
-
+    # Line Defs -- add defs load/save
     LineDefs = QtGui.QTextBrowser()
     dockLineDefs = QtGui.QDockWidget("Line Defs", w.window)
     dockLineDefs.setWidget(LineDefs)
@@ -318,20 +313,22 @@ if __name__ == "__main__":
     font.setPointSize(16)
     LineDefs.setFont(font)
 
+    # Minireader / Lookup Line
     x, y, z, q = w.window.giveIt()
     lookupLine = MiniReader(x, y, z, q, LineDefs)  # dockKanji, dockVocab
-
     dockLookupLine = QtGui.QDockWidget("Lookup Line", w.window)
     dockLookupLine.setWidget(lookupLine)
     w.window.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockLookupLine)
 
+    # Start
     qapp.exec_()
+
+
+
 
     #w.window.verticalLayout_4.removeWidget(w.window.textContent)
     #w.window.removeDockWidget(w.window.verticalLayout_4)
     #w.window.textContent.hide()
-
-
     #file1 = "G:\Documents and Settings\\5k3105\Desktop\\anime\sidonia\\timed for [Underwater] release Shidonia_No_Kishi_004.txt"
     #w.window.openFile(file1)
 
