@@ -8,24 +8,9 @@ from yomi_base.preference_data import Preferences
 from yomi_base.reader import MainWindowReader
 from yomi_base.minireader import MiniReader
 import sys, pysrt, subterms
+from os import listdir
+from os.path import isfile, join
 from PySide.phonon import Phonon
-
-
-class YomichanStandalone():
-    def __init__(self):
-        self.language = japanese.initLanguage()
-        self.preferences = Preferences()
-        self.preferences.load()
-
-        self.window = MainWindowReader(
-            None,
-            self.preferences,
-            self.language,
-            filename=sys.argv[1] if len(sys.argv) >= 2 else None
-        )
-
-        self.window.show()
-
 
 class cSubsList(QtGui.QListWidget):
     def __init__(self):
@@ -39,10 +24,10 @@ class cSubsList(QtGui.QListWidget):
                 qp.player.pause()
 
     def loadSubs(self, file):
-        self.subs = pysrt.open(
-            file,
-            encoding='utf-8')
+        self.subs = pysrt.open(file, encoding='utf-8')
 
+
+        self.clear()
         g = 0
         for i in self.subs:
             self.insertItem(g, i.text)
@@ -137,7 +122,7 @@ class QPlayer(QtGui.QWidget):
         self.stopButton = QtGui.QPushButton("Stop")
         self.stopButton.setIcon(QtGui.QIcon(":/images/stop.png"))
 
-        self.fullScreenButton = QtGui.QPushButton("Full Screen")  ######
+        #self.fullScreenButton = QtGui.QPushButton("Full Screen")  ######
 
         #upperLayout = QtGui.QHBoxLayout()
         #upperLayout.addWidget(self.fileLabel)
@@ -152,7 +137,7 @@ class QPlayer(QtGui.QWidget):
         lowerLayout.addWidget(self.playButton)
         lowerLayout.addWidget(self.pauseButton)
         lowerLayout.addWidget(self.stopButton)
-        lowerLayout.addWidget(self.fullScreenButton)  #########
+        #lowerLayout.addWidget(self.fullScreenButton)  #########
         lowerLayout.addWidget(self.volumeSlider)
 
         layout = QtGui.QVBoxLayout()
@@ -173,7 +158,7 @@ class QPlayer(QtGui.QWidget):
         self.pauseButton.clicked.connect(self.pauseClicked)
         self.stopButton.clicked.connect(self.stopClicked)
         #self.fileEdit.textChanged.connect(self.checkFileName)
-        self.fullScreenButton.clicked.connect(self.fullScreenClicked)
+        #self.fullScreenButton.clicked.connect(self.fullScreenClicked)
         #self.videoWidget.keyPressed.connect(self.fullScreenButton)
         #self.mController.availableSubtitlesChanged.connect(self.subsChanged)
         #self.videoWidget.stateChanged.connect(self.vidStateChanged)
@@ -284,51 +269,186 @@ class cVideoWidget(Phonon.VideoWidget):
             else:
                 self.qp.player.pause()
 
+class cDockKanji(QtGui.QDockWidget):
+    def __init__(self):
+        super(cDockKanji, self).__init__()
+        #self.dockKanji = QtGui.QDockWidget(MainWindowReader)
+        #self.dockKanji.setObjectName(_fromUtf8("dockKanji"))
+        self.dockWidgetContents = QtGui.QWidget()
+        #self.dockWidgetContents_3.setObjectName(_fromUtf8("dockWidgetContents_3"))
+        self.verticalLayout = QtGui.QVBoxLayout(self.dockWidgetContents)
+        #self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
+        self.textKanjiDefs = QtGui.QTextBrowser(self.dockWidgetContents)
+        self.textKanjiDefs.setAcceptDrops(False)
+        self.textKanjiDefs.setOpenLinks(False)
+        #self.textKanjiDefs.setObjectName(_fromUtf8("textKanjiDefs"))
+        self.verticalLayout.addWidget(self.textKanjiDefs)
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        #self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
+        self.label = QtGui.QLabel(self.dockWidgetContents)
+        #self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.horizontalLayout.addWidget(self.label)
+        self.textKanjiSearch = QtGui.QLineEdit(self.dockWidgetContents)
+        #self.textKanjiSearch.setObjectName(_fromUtf8("textKanjiSearch"))
+        self.horizontalLayout.addWidget(self.textKanjiSearch)
+        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.setWidget(self.dockWidgetContents)
+        self.setWindowTitle("Kanji")
+
+class cDockVocab(QtGui.QDockWidget):
+    def __init__(self):
+        super(cDockVocab, self).__init__()
+        #self.dockVocab = QtGui.QDockWidget("dockVocab")
+        #self.setObjectName(_fromUtf8("dockVocab"))
+        self.dockWidgetContents = QtGui.QWidget()
+        #self.dockWidgetContents.setObjectName(_fromUtf8("dockWidgetContents"))
+        self.verticalLayout = QtGui.QVBoxLayout(self.dockWidgetContents)
+        #self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+        self.textVocabDefs = QtGui.QTextBrowser(self.dockWidgetContents)
+        self.textVocabDefs.setAcceptDrops(False)
+        self.textVocabDefs.setOpenLinks(False)
+        #self.textVocabDefs.setObjectName("textVocabDefs") #_fromUtf8("textVocabDefs")
+        self.verticalLayout.addWidget(self.textVocabDefs)
+        self.horizontalLayout = QtGui.QHBoxLayout()
+        #self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))
+        self.label = QtGui.QLabel(self.dockWidgetContents)
+        #self.label.setObjectName(_fromUtf8("label"))
+        self.horizontalLayout.addWidget(self.label)
+        self.textVocabSearch = QtGui.QLineEdit(self.dockWidgetContents)
+        #self.textVocabSearch.setObjectName(_fromUtf8("textVocabSearch"))
+        self.horizontalLayout.addWidget(self.textVocabSearch)
+        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.setWidget(self.dockWidgetContents)
+        self.setWindowTitle("Vocabulary")
+
+class cDockDirSelect(QtGui.QDockWidget):
+    def __init__(self):
+        super(cDockDirSelect, self).__init__()
+        self.dockWidgetContents = QtGui.QWidget()
+        self.horizontalLayout = QtGui.QHBoxLayout(self.dockWidgetContents)
+        self.dockWidgetContents.setLayout(self.horizontalLayout)
+
+        self.comboVideo = QtGui.QComboBox(self.dockWidgetContents)
+        self.horizontalLayout.addWidget(self.comboVideo)
+        self.btnVideo = QtGui.QPushButton(self.dockWidgetContents)
+        self.btnVideo.setText("+")
+        self.horizontalLayout.addWidget(self.btnVideo)
+        self.btnVideo.clicked.connect(self.showDialogV)
+
+        self.comboTranscr = QtGui.QComboBox(self.dockWidgetContents)
+        self.horizontalLayout.addWidget(self.comboTranscr)
+        self.btnTranscr = QtGui.QPushButton(self.dockWidgetContents)
+        self.btnTranscr.setText("+")
+        self.horizontalLayout.addWidget(self.btnTranscr)
+        self.btnTranscr.clicked.connect(self.showDialogT)
+
+        self.comboDefs = QtGui.QComboBox(self.dockWidgetContents)
+        self.horizontalLayout.addWidget(self.comboDefs)
+        self.btnDefs = QtGui.QPushButton(self.dockWidgetContents)
+        self.btnDefs.setText("+")
+        self.horizontalLayout.addWidget(self.btnDefs)
+        self.btnDefs.clicked.connect(self.showDialogD)
+
+        self.btnVideo.setMaximumWidth(20)
+        self.btnTranscr.setMaximumWidth(20)
+        self.btnDefs.setMaximumWidth(20)
+
+        self.setWidget(self.dockWidgetContents)
+        self.setWindowTitle("Directory Select")
+        self.setMinimumHeight(50)
+
+        self.comboVideoDir = ""
+        self.comboVideo.currentIndexChanged.connect(self.setvideofile)
+
+        self.comboTranscrDir = ""
+        self.comboTranscr.currentIndexChanged.connect(self.settranscrfile)
+
+
+    def setvideofile(self):
+        qp.init = True  # reset video source
+        fn = self.comboVideoDir
+        qp.fileEdit = fn+"\\"+self.comboVideo.currentText()
+
+    def settranscrfile(self):
+        fn = self.comboTranscrDir
+        subsList.loadSubs(fn+"\\"+self.comboTranscr.currentText())
+
+    def showDialogV(self):
+        dialog = QtGui.QFileDialog()
+        dialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
+        dirNames = QtGui.QFileDialog.getOpenFileName
+        if dialog.exec_():
+            dirNames = dialog.selectedFiles()
+        onlyfiles = [ f for f in listdir(dirNames[0]) if isfile(join(dirNames[0],f)) ]
+        self.comboVideo.addItems(onlyfiles)
+        self.comboVideoDir = dirNames[0]
+
+    def showDialogT(self):
+        dialog = QtGui.QFileDialog()
+        dialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
+        dirNames = QtGui.QFileDialog.getOpenFileName
+        if dialog.exec_():
+            dirNames = dialog.selectedFiles()
+        onlyfiles = [ f for f in listdir(dirNames[0]) if isfile(join(dirNames[0],f)) ]
+        self.comboTranscr.addItems(onlyfiles)
+        self.comboTranscrDir = dirNames[0]
+
+    def showDialogD(self):
+        dialog = QtGui.QFileDialog()
+        dialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
+        dirNames = QtGui.QFileDialog.getOpenFileName
+        if dialog.exec_():
+            dirNames = dialog.selectedFiles()
+        onlyfiles = [ f for f in listdir(dirNames[0]) if isfile(join(dirNames[0],f)) ]
+        self.comboDefs.addItems(onlyfiles)
 
 if __name__ == "__main__":
     qapp = QtGui.QApplication(sys.argv)
-    w = YomichanStandalone()
+    w = QtGui.QMainWindow()
 
     # Video Player
-    dockVideo = QtGui.QDockWidget("Translation Player", w.window)
+    dockVideo = QtGui.QDockWidget("Translation Player")
     qp = QPlayer()
     dockVideo.setWidget(qp)
-    w.window.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockVideo)
-    fn = "G:/Documents and Settings/5k3105/Desktop/anime/sidonia/[DeadFish] Sidonia no Kishi - 04 [720p][AAC].mp4"
-    qp.fileEdit = fn
+    w.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockVideo)
+    #fn = "G:/Documents and Settings/5k3105/Desktop/anime/sidonia/[DeadFish] Sidonia no Kishi - 04 [720p][AAC].mp4"
+    #qp.fileEdit = fn
+    dockVideo.setMinimumWidth(500)
 
     # Transcript List
     subsList = cSubsList()
     subsList.itemDoubleClicked.connect(subsList.gotoLine)
-    w.window.textContent.hide()  # w.window.verticalLayout_4.removeWidget(w.window.textContent)
-    w.window.verticalLayout_4.addChildWidget(subsList)
-    subsList.loadSubs("G:\Documents and Settings\\5k3105\Desktop\\anime\sidonia\\timed for [Underwater] release Shidonia_No_Kishi_004.srt")
+    #fn = "G:/Documents and Settings/5k3105/Desktop/anime/sidonia/timed for [Underwater] release Shidonia_No_Kishi_004.srt"
+    #subsList.loadSubs(fn)
+    w.setCentralWidget(subsList)
+
+    dockVocab = cDockVocab()
+    w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockVocab)
+    dockKanji = cDockKanji()
+    w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockKanji)
+    dockKanji.hide()
 
     # Line Defs -- add defs load/save
     LineDefs = QtGui.QTextBrowser()
-    dockLineDefs = QtGui.QDockWidget("Line Defs", w.window)
+    dockLineDefs = QtGui.QDockWidget("Line Defs")
     dockLineDefs.setWidget(LineDefs)
-    w.window.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockLineDefs)
     font = QtGui.QFont()
     font.setPointSize(16)
     LineDefs.setFont(font)
+    LineDefs.setMinimumWidth(250)
 
     # Minireader / Lookup Line
-    x, y, z, q = w.window.giveIt()
-    lookupLine = MiniReader(x, y, z, q, LineDefs)  # dockKanji, dockVocab
-    dockLookupLine = QtGui.QDockWidget("Lookup Line", w.window)
+    lookupLine = MiniReader(dockKanji, dockVocab, dockVocab.textVocabDefs, dockKanji.textKanjiDefs, LineDefs)
+    dockLookupLine = QtGui.QDockWidget("Lookup Line")
     dockLookupLine.setWidget(lookupLine)
-    w.window.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockLookupLine)
+    dockLookupLine.setMaximumHeight(90)
 
-    # Start
+    w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockLookupLine)
+    w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockLineDefs)
+
+    dockDirSelect = cDockDirSelect()
+    w.addDockWidget(QtCore.Qt.TopDockWidgetArea, dockDirSelect)
+
+
+    w.showMaximized()
     qapp.exec_()
-
-
-
-
-    #w.window.verticalLayout_4.removeWidget(w.window.textContent)
-    #w.window.removeDockWidget(w.window.verticalLayout_4)
-    #w.window.textContent.hide()
-    #file1 = "G:\Documents and Settings\\5k3105\Desktop\\anime\sidonia\\timed for [Underwater] release Shidonia_No_Kishi_004.txt"
-    #w.window.openFile(file1)
-

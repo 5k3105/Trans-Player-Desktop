@@ -74,7 +74,9 @@ class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_Ma
         #self.dockKanji.visibilityChanged.connect(self.onVisibilityChanged)
         #self.dockVocab.visibilityChanged.connect(self.onVisibilityChanged)
         #self.listDefinitions.itemDoubleClicked.connect(self.onDefinitionDoubleClicked)
-        self.textKanjiDefs.anchorClicked.connect(self.onKanjiDefsAnchorClicked)
+
+        ### self.textKanjiDefs.anchorClicked.connect(self.onKanjiDefsAnchorClicked)
+
         #self.textKanjiSearch.returnPressed.connect(self.onKanjiDefSearchReturn)
         self.textVocabDefs.anchorClicked.connect(self.onVocabDefsAnchorClicked)
         #self.textVocabSearch.returnPressed.connect(self.onVocabDefSearchReturn)
