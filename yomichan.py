@@ -26,7 +26,6 @@ class cSubsList(QtGui.QListWidget):
     def loadSubs(self, file):
         self.subs = pysrt.open(file, encoding='utf-8')
 
-
         self.clear()
         g = 0
         for i in self.subs:
