@@ -18,7 +18,7 @@
 
 from PySide import QtGui, QtCore
 import copy
-import gen.preferences_ui
+#import gen.preferences_ui
 
 
 class DialogPreferences(QtGui.QDialog, gen.preferences_ui.Ui_DialogPreferences):

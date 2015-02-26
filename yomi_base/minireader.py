@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from PySide import QtGui, QtCore    #PyQt4
-import about
+#import about
 import constants
-import gen.reader_ui
+#import gen.reader_ui
 import japanese.util
 import os
-import preferences
+#import preferences
 import reader_util
 import tarfile
 import update
