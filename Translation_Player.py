@@ -6,11 +6,10 @@ from yomi_base import japanese
 from yomi_base.preference_data import Preferences
 
 from yomi_base.minireader import MiniReader
-import sys, pysrt, subterms, pickle
+import sys, pysrt, pickle
 from os import listdir
 from os.path import isfile, join
 from PySide.phonon import Phonon
-
 
 class cSubsList(QtGui.QListWidget):
     def __init__(self):
@@ -226,7 +225,6 @@ class QPlayer(QtGui.QWidget):
         else:
             self.playButton.setEnabled(False)
 
-
 class cVideoWidget(Phonon.VideoWidget):
     def __init__(self):
         super(cVideoWidget, self).__init__()
@@ -254,7 +252,6 @@ class cVideoWidget(Phonon.VideoWidget):
             else:
                 self.qp.player.pause()
 
-
 class cDockKanji(QtGui.QDockWidget):
     def __init__(self):
         super(cDockKanji, self).__init__()
@@ -281,7 +278,6 @@ class cDockKanji(QtGui.QDockWidget):
         self.setWidget(self.dockWidgetContents)
         self.setWindowTitle("Kanji")
 
-
 class cDockVocab(QtGui.QDockWidget):
     def __init__(self):
         super(cDockVocab, self).__init__()
@@ -307,7 +303,6 @@ class cDockVocab(QtGui.QDockWidget):
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.setWidget(self.dockWidgetContents)
         self.setWindowTitle("Vocabulary")
-
 
 class cDockDirSelect(QtGui.QDockWidget):
     def __init__(self):
@@ -367,11 +362,6 @@ class cDockDirSelect(QtGui.QDockWidget):
         #self.btnLoad.setMaximumWidth(90)
         self.btnSave.setMaximumWidth(90)
         self.btnCreate.setMaximumWidth(90)
-
-#        print self.comboVideo.height()
-#        print self.btnCreate.height()
-#        self.comboDefs.setFixedHeight(40)
-#        print self.comboDefs.height()
 
         self.setWidget(self.dockWidgetContents)
         self.setWindowTitle("Directory Select")
@@ -487,7 +477,7 @@ class cLineDefs(QtGui.QTextBrowser):
         self.Reading = data['Reading']
         self.Glossary = data['Glossary']
 
-    def savedefs(self): #, filename):  # Testing save defs
+    def savedefs(self):
         file = open(self.filename, 'w')
         data = {'TranscriptLine': self.TranscriptLine, 'Expression': self.Expression, 'Reading': self.Reading, 'Glossary': self.Glossary}
         pickle.dump(data, file)
@@ -525,15 +515,11 @@ if __name__ == "__main__":
     qp = QPlayer()
     dockVideo.setWidget(qp)
     w.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockVideo)
-    # fn = "G:/Documents and Settings/5k3105/Desktop/anime/sidonia/[DeadFish] Sidonia no Kishi - 04 [720p][AAC].mp4"
-    #qp.fileEdit = fn
     dockVideo.setMinimumWidth(500)
 
 # Transcript List
     subsList = cSubsList()
     subsList.itemDoubleClicked.connect(subsList.gotoLine)
-    #fn = "G:/Documents and Settings/5k3105/Desktop/anime/sidonia/timed for [Underwater] release Shidonia_No_Kishi_004.srt"
-    #subsList.loadSubs(fn)
     w.setCentralWidget(subsList)
 
 # Vocab and Kanji
@@ -561,11 +547,6 @@ if __name__ == "__main__":
 # Directory Select
     dockDirSelect = cDockDirSelect()
     w.addDockWidget(QtCore.Qt.TopDockWidgetArea, dockDirSelect)
-
-# hack?
-    #dockDirSelect.btnLoad.clicked.connect(LineDefs.loaddefs(""))
-    #dockDirSelect.btnSave.clicked.connect(LineDefs.loaddefs(""))
-    #dockDirSelect.btnCreate.clicked.connect(LineDefs.loaddefs(""))
 
     w.showMaximized()
     qapp.exec_()
