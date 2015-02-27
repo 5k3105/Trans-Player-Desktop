@@ -400,9 +400,13 @@ class cDockDirSelect(QtGui.QDockWidget):
         if dialog.exec_():
             dirNames = dialog.selectedFiles()
         onlyfiles = [f for f in listdir(dirNames[0]) if isfile(join(dirNames[0], f))]
+        onlyvids = list()
+        for x in onlyfiles:
+            if x.split(".")[-1] in("mp4", "mkv") :
+                onlyvids.append(x)
         self.comboVideo.clear()
         self.comboVideo.addItem("")
-        self.comboVideo.addItems(onlyfiles)
+        self.comboVideo.addItems(onlyvids)
         self.comboVideoDir = dirNames[0]
 
     def showDialogT(self):
@@ -412,9 +416,13 @@ class cDockDirSelect(QtGui.QDockWidget):
         if dialog.exec_():
             dirNames = dialog.selectedFiles()
         onlyfiles = [f for f in listdir(dirNames[0]) if isfile(join(dirNames[0], f))]
+        onlysrts = list()
+        for x in onlyfiles:
+            if x.split(".")[-1] == "srt" :
+                onlysrts.append(x)
         self.comboTranscr.clear()
         self.comboTranscr.addItem("")
-        self.comboTranscr.addItems(onlyfiles)
+        self.comboTranscr.addItems(onlysrts)
         self.comboTranscrDir = dirNames[0]
 
     def showDialogD(self):
@@ -426,9 +434,13 @@ class cDockDirSelect(QtGui.QDockWidget):
         if dialog.exec_():
             dirNames = dialog.selectedFiles()
         onlyfiles = [f for f in listdir(dirNames[0]) if isfile(join(dirNames[0], f))] # should be .tdef !
+        onlydefs = list()
+        for x in onlyfiles:
+            if x.split(".")[-1] == "tdef" :
+                onlydefs.append(x)
         self.comboDefs.clear()
         self.comboDefs.addItem("")
-        self.comboDefs.addItems(onlyfiles)
+        self.comboDefs.addItems(onlydefs)
         self.comboDefsDir = dirNames[0]
         LineDefs.basedir = dirNames[0]
         self.btnCreate.setDisabled(False)
