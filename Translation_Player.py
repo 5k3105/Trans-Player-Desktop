@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from PySide import QtGui, QtCore  # PyQt4
-from yomi_base import japanese
-from yomi_base.preference_data import Preferences
+#from yomi_base import japanese
+#from yomi_base.preference_data import Preferences
 
 from yomi_base.minireader import MiniReader
 import sys, pysrt, pickle
@@ -255,24 +255,23 @@ class cVideoWidget(Phonon.VideoWidget):
 class cDockKanji(QtGui.QDockWidget):
     def __init__(self):
         super(cDockKanji, self).__init__()
-        # self.dockKanji = QtGui.QDockWidget(MainWindowReader)
-        #self.dockKanji.setObjectName(_fromUtf8("dockKanji"))
+
         self.dockWidgetContents = QtGui.QWidget()
-        #self.dockWidgetContents_3.setObjectName(_fromUtf8("dockWidgetContents_3"))
+
         self.verticalLayout = QtGui.QVBoxLayout(self.dockWidgetContents)
-        #self.verticalLayout_3.setObjectName(_fromUtf8("verticalLayout_3"))
+
         self.textKanjiDefs = QtGui.QTextBrowser(self.dockWidgetContents)
         self.textKanjiDefs.setAcceptDrops(False)
         self.textKanjiDefs.setOpenLinks(False)
-        #self.textKanjiDefs.setObjectName(_fromUtf8("textKanjiDefs"))
+
         self.verticalLayout.addWidget(self.textKanjiDefs)
         self.horizontalLayout = QtGui.QHBoxLayout()
-        #self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
+
         self.label = QtGui.QLabel(self.dockWidgetContents)
-        #self.label_2.setObjectName(_fromUtf8("label_2"))
+
         self.horizontalLayout.addWidget(self.label)
         self.textKanjiSearch = QtGui.QLineEdit(self.dockWidgetContents)
-        #self.textKanjiSearch.setObjectName(_fromUtf8("textKanjiSearch"))
+
         self.horizontalLayout.addWidget(self.textKanjiSearch)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.setWidget(self.dockWidgetContents)
@@ -281,24 +280,23 @@ class cDockKanji(QtGui.QDockWidget):
 class cDockVocab(QtGui.QDockWidget):
     def __init__(self):
         super(cDockVocab, self).__init__()
-        # self.dockVocab = QtGui.QDockWidget("dockVocab")
-        #self.setObjectName(_fromUtf8("dockVocab"))
+
         self.dockWidgetContents = QtGui.QWidget()
-        #self.dockWidgetContents.setObjectName(_fromUtf8("dockWidgetContents"))
+
         self.verticalLayout = QtGui.QVBoxLayout(self.dockWidgetContents)
-        #self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+
         self.textVocabDefs = QtGui.QTextBrowser(self.dockWidgetContents)
         self.textVocabDefs.setAcceptDrops(False)
         self.textVocabDefs.setOpenLinks(False)
-        #self.textVocabDefs.setObjectName("textVocabDefs") #_fromUtf8("textVocabDefs")
+
         self.verticalLayout.addWidget(self.textVocabDefs)
         self.horizontalLayout = QtGui.QHBoxLayout()
-        #self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))
+
         self.label = QtGui.QLabel(self.dockWidgetContents)
-        #self.label.setObjectName(_fromUtf8("label"))
+
         self.horizontalLayout.addWidget(self.label)
         self.textVocabSearch = QtGui.QLineEdit(self.dockWidgetContents)
-        #self.textVocabSearch.setObjectName(_fromUtf8("textVocabSearch"))
+
         self.horizontalLayout.addWidget(self.textVocabSearch)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.setWidget(self.dockWidgetContents)
@@ -348,13 +346,13 @@ class cDockDirSelect(QtGui.QDockWidget):
         #self.btnLoad.setDisabled(True)
 
         self.btnSave = QtGui.QPushButton(self.dockWidgetContents)
-        self.btnSave.setText("Save")
+        self.btnSave.setText("Save Def")
         self.horizontalLayout.addWidget(self.btnSave)
         self.btnSave.clicked.connect(LineDefs.savedefs)
         self.btnSave.setDisabled(True)
 
         self.btnCreate = QtGui.QPushButton(self.dockWidgetContents)
-        self.btnCreate.setText("Create")
+        self.btnCreate.setText("Create Def")
         self.horizontalLayout.addWidget(self.btnCreate)
         self.btnCreate.clicked.connect(LineDefs.createdefs)
         self.btnCreate.setDisabled(True)
@@ -378,13 +376,16 @@ class cDockDirSelect(QtGui.QDockWidget):
 
 
     def setvideofile(self):
-        qp.init = True  # reset video source
-        fn = self.comboVideoDir
-        qp.fileEdit = fn + "\\" + self.comboVideo.currentText()
+        if self.comboVideo.currentText() != "":
+            qp.init = True  # reset video source
+            qp.fileEdit = self.comboVideoDir + "/" + self.comboVideo.currentText()
+            statusbar.showMessage("Video File Loaded: " + qp.fileEdit)
 
     def settranscrfile(self):
-        fn = self.comboTranscrDir
-        subsList.loadSubs(fn + "\\" + self.comboTranscr.currentText())
+        if self.comboTranscr.currentText() != "":
+            fn = self.comboTranscrDir + "/" + self.comboTranscr.currentText()
+            subsList.loadSubs(fn)
+            statusbar.showMessage("Transcript File Loaded: " + fn)
 
     def setdefsfile(self):
         if self.comboDefs.currentText() != "":
@@ -408,6 +409,7 @@ class cDockDirSelect(QtGui.QDockWidget):
         self.comboVideo.addItem("")
         self.comboVideo.addItems(onlyvids)
         self.comboVideoDir = dirNames[0]
+        statusbar.showMessage("Video Folder set to: " + dirNames[0])
 
     def showDialogT(self):
         dialog = QtGui.QFileDialog()
@@ -424,6 +426,7 @@ class cDockDirSelect(QtGui.QDockWidget):
         self.comboTranscr.addItem("")
         self.comboTranscr.addItems(onlysrts)
         self.comboTranscrDir = dirNames[0]
+        statusbar.showMessage("Transcript Folder set to: " + dirNames[0])
 
     def showDialogD(self):
         # open file dialog, get folder, add folder files to combobox
@@ -444,7 +447,7 @@ class cDockDirSelect(QtGui.QDockWidget):
         self.comboDefsDir = dirNames[0]
         LineDefs.basedir = dirNames[0]
         self.btnCreate.setDisabled(False)
-
+        statusbar.showMessage("Definitions Folder set to: " + dirNames[0])
 
 class cLineDefs(QtGui.QTextBrowser):
     def __init__(self):
@@ -459,9 +462,6 @@ class cLineDefs(QtGui.QTextBrowser):
         font = QtGui.QFont()
         font.setPointSize(16)
         self.setFont(font)
-
-    def setloaddefs(self, filename):
-        self.filename = filename
 
     def createdefs(self):
         # get new filename from input dialog
@@ -478,6 +478,7 @@ class cLineDefs(QtGui.QTextBrowser):
             dockDirSelect.comboDefs.addItem(text + ".tdef") # hacky, avoids re-query of dir
             index = dockDirSelect.comboDefs.findText(text + ".tdef")
             dockDirSelect.comboDefs.setCurrentIndex(index)
+            statusbar.showMessage("New Definitions File Created: " + self.filename)
 
     def loaddefs(self):
         file = open(self.filename, 'r')
@@ -488,12 +489,14 @@ class cLineDefs(QtGui.QTextBrowser):
         self.Expression = data['Expression']
         self.Reading = data['Reading']
         self.Glossary = data['Glossary']
+        statusbar.showMessage("Definitions File Loaded: " + self.filename)
 
     def savedefs(self):
         file = open(self.filename, 'w')
         data = {'TranscriptLine': self.TranscriptLine, 'Expression': self.Expression, 'Reading': self.Reading, 'Glossary': self.Glossary}
         pickle.dump(data, file)
         file.close()
+        statusbar.showMessage("Definitions File Saved: " + self.filename, 2000)
 
     def add(self, expression, reading, glossary):
         line = subsList.currentRow
@@ -520,7 +523,9 @@ class cLineDefs(QtGui.QTextBrowser):
 if __name__ == "__main__":
     qapp = QtGui.QApplication(sys.argv)
     w = QtGui.QMainWindow()
-    w.setWindowTitle("Trans-Player-Desktop v0.1")
+    w.setWindowTitle("Trans-Player-Desktop v0.2")
+    statusbar = QtGui.QStatusBar(w)
+    w.setStatusBar(statusbar)
 
 # Video Player
     dockVideo = QtGui.QDockWidget("Translation Player")
