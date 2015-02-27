@@ -59,18 +59,7 @@ class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_Ma
         #self.updateVocabDefs()
         #self.updateKanjiDefs()
 
-        #self.actionAbout.triggered.connect(self.onActionAbout)
-        #self.actionFeedback.triggered.connect(self.onActionFeedback)
-        #self.actionFind.triggered.connect(self.onActionFind)
-        #self.actionFindNext.triggered.connect(self.onActionFindNext)
-        #self.actionHomepage.triggered.connect(self.onActionHomepage)
-        #self.actionOpen.triggered.connect(self.onActionOpen)
-        #self.actionPreferences.triggered.connect(self.onActionPreferences)
-        #self.actionToggleWrap.toggled.connect(self.onActionToggleWrap)
-        #self.actionZoomIn.triggered.connect(self.onActionZoomIn)
-        #self.actionZoomOut.triggered.connect(self.onActionZoomOut)
-        #self.actionZoomReset.triggered.connect(self.onActionZoomReset)
-        #self.dockAnki.visibilityChanged.connect(self.onVisibilityChanged)
+
         #self.dockKanji.visibilityChanged.connect(self.onVisibilityChanged)
         #self.dockVocab.visibilityChanged.connect(self.onVisibilityChanged)
         #self.listDefinitions.itemDoubleClicked.connect(self.onDefinitionDoubleClicked)
@@ -222,12 +211,24 @@ class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_Ma
         elif command == 'copyVocabDef':
             reader_util.copyVocabDef(definition)
 
-            if definition['reading']:
-                result = u'{expression}\t{reading}\t{glossary}\n'.format(**definition)
-            else:
-                result = u'{expression}\t{glossary}\n'.format(**definition)
+            #if definition['reading']:
+            #    result = u'{expression}\t{reading}\t{glossary}\n'.format(**definition)
+            #else:
+            #    result = u'{expression}\t{glossary}\n'.format(**definition)
 
-            self.LineDefs.append(result)
+            if definition['reading']:
+                result = u'{expression} [{reading}] {glossary}\n'.format(**definition)
+            else:
+                result = u'{expression} {glossary}\n'.format(**definition)
+
+
+            #self.LineDefs.append(result)  # REMOVE #
+
+            self.LineDefs.Result = result
+            expression = u'{expression}'.format(**definition)
+            reading =  u'{reading}'.format(**definition)
+            glossary =  u'{glossary}'.format(**definition)
+            self.LineDefs.add(expression, reading, glossary)
 
 
     def executeKanjiCommand(self, command, index):

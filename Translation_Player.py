@@ -5,12 +5,12 @@ from PySide import QtGui, QtCore  # PyQt4
 from yomi_base import japanese
 from yomi_base.preference_data import Preferences
 
-
 from yomi_base.minireader import MiniReader
-import sys, pysrt, subterms
+import sys, pysrt, subterms, pickle
 from os import listdir
 from os.path import isfile, join
 from PySide.phonon import Phonon
+
 
 class cSubsList(QtGui.QListWidget):
     def __init__(self):
@@ -36,7 +36,7 @@ class cSubsList(QtGui.QListWidget):
             self.item(i).setFont(QtGui.QFont('Meiryo', 16))  # MS Mincho
 
         # back up 1:33
-        #self.subs.shift(seconds=-30) # Move all subs 2 seconds earlier
+        # self.subs.shift(seconds=-30) # Move all subs 2 seconds earlier
         #self.subs.shift(minutes=-1)  # Move all subs 1 minutes later
         #self.subs.shift(milliseconds=-500 )
 
@@ -62,9 +62,9 @@ class cSubsList(QtGui.QListWidget):
         self.nextSubEnd = i.end.ordinal
         # self.lcdTimer.display("11:00")
         lookupLine.setPlainText(self.subs[g.row()].text)
-        #lookupLine.appendPlainText(self.subs[g.row()].text)
+        # lookupLine.appendPlainText(self.subs[g.row()].text)
         #self.textEditor.append(self.subs[g.row()].text)
-
+        LineDefs.lookup(self.currentRow)
 
 class QPlayer(QtGui.QWidget):
     def __init__(self):
@@ -74,7 +74,7 @@ class QPlayer(QtGui.QWidget):
         self.player = Phonon.MediaObject(self)
         Phonon.createPath(self.player, self.audioOuptut)
 
-        #subtitles not working..
+        # subtitles not working..
         #self.mController = Phonon.MediaController(self.player)
         #self.mController.setAutoplayTitles(True)
 
@@ -91,18 +91,13 @@ class QPlayer(QtGui.QWidget):
 
         self.buildGUI()
         self.setupConnections()
-        self.init = True
-
-        self.stLineNumber = list()
-        self.stTermEnd = list()
-        self.stTermStart = list()
-        self.stTermStart.append(4)
+        self.init = True # used to test before loading file when PLAY is pushed
 
 
     def buildGUI(self):
 
         # self.fileLabel = QtGui.QLabel("File")
-        #self.fileEdit = QtGui.QLineEdit()
+        # self.fileEdit = QtGui.QLineEdit()
         #self.fileLabel.setBuddy(self.fileEdit)
         self.fileEdit = ""
         self.lcdTimer = QtGui.QLCDNumber()
@@ -156,24 +151,12 @@ class QPlayer(QtGui.QWidget):
         self.playButton.clicked.connect(self.playClicked)
         self.pauseButton.clicked.connect(self.pauseClicked)
         self.stopButton.clicked.connect(self.stopClicked)
-        #self.fileEdit.textChanged.connect(self.checkFileName)
+        # self.fileEdit.textChanged.connect(self.checkFileName)
         #self.fullScreenButton.clicked.connect(self.fullScreenClicked)
         #self.videoWidget.keyPressed.connect(self.fullScreenButton)
         #self.mController.availableSubtitlesChanged.connect(self.subsChanged)
         #self.videoWidget.stateChanged.connect(self.vidStateChanged)
 
-    def fullScreenClicked(self):  # Testing Subterm Saves
-        self.stLineNumber.append(1)
-        self.stTermEnd.append(1)
-        self.stTermStart.append(2)
-        subterms.save_data(self.stLineNumber, self.stTermStart, self.stTermEnd)
-
-        print self.stTermStart
-        self.stTermStart.append(5)
-        print self.stTermStart
-        print "zxc"
-        self.stLineNumber, self.stTermStart, self.stTermEnd = subterms.restore_data()
-        print self.stTermStart
 
     def subsChanged(self):
         pass
@@ -208,12 +191,15 @@ class QPlayer(QtGui.QWidget):
             subsList.item(subsList.currentRow).setBackground(QtGui.QColor('red'))
 
             # browser text
-            #w.body.appendInside("<span>" + w.subs[w.currentRow].text + "</span>")
+            # w.body.appendInside("<span>" + w.subs[w.currentRow].text + "</span>")
             #w.span.setPlainText( w.subs[w.currentRow].text)
 
             #scroll to option. should center current item in list though.
             subsList.ScrollHint = QtGui.QAbstractItemView.EnsureVisible
             subsList.scrollToItem(subsList.item(subsList.currentRow), subsList.ScrollHint)
+
+            # Update LineDefs panel
+            LineDefs.lookup(subsList.currentRow)
 
 
     def playClicked(self):  # Set video file at first play click
@@ -268,10 +254,11 @@ class cVideoWidget(Phonon.VideoWidget):
             else:
                 self.qp.player.pause()
 
+
 class cDockKanji(QtGui.QDockWidget):
     def __init__(self):
         super(cDockKanji, self).__init__()
-        #self.dockKanji = QtGui.QDockWidget(MainWindowReader)
+        # self.dockKanji = QtGui.QDockWidget(MainWindowReader)
         #self.dockKanji.setObjectName(_fromUtf8("dockKanji"))
         self.dockWidgetContents = QtGui.QWidget()
         #self.dockWidgetContents_3.setObjectName(_fromUtf8("dockWidgetContents_3"))
@@ -294,10 +281,11 @@ class cDockKanji(QtGui.QDockWidget):
         self.setWidget(self.dockWidgetContents)
         self.setWindowTitle("Kanji")
 
+
 class cDockVocab(QtGui.QDockWidget):
     def __init__(self):
         super(cDockVocab, self).__init__()
-        #self.dockVocab = QtGui.QDockWidget("dockVocab")
+        # self.dockVocab = QtGui.QDockWidget("dockVocab")
         #self.setObjectName(_fromUtf8("dockVocab"))
         self.dockWidgetContents = QtGui.QWidget()
         #self.dockWidgetContents.setObjectName(_fromUtf8("dockWidgetContents"))
@@ -320,9 +308,11 @@ class cDockVocab(QtGui.QDockWidget):
         self.setWidget(self.dockWidgetContents)
         self.setWindowTitle("Vocabulary")
 
+
 class cDockDirSelect(QtGui.QDockWidget):
     def __init__(self):
         super(cDockDirSelect, self).__init__()
+
         self.dockWidgetContents = QtGui.QWidget()
         self.horizontalLayout = QtGui.QHBoxLayout(self.dockWidgetContents)
         self.dockWidgetContents.setLayout(self.horizontalLayout)
@@ -348,9 +338,40 @@ class cDockDirSelect(QtGui.QDockWidget):
         self.horizontalLayout.addWidget(self.btnDefs)
         self.btnDefs.clicked.connect(self.showDialogD)
 
+        # enable Load/Save when file selected, set linedefs.filename
+        self.comboDefs.editTextChanged.connect(self.setdefsfile)
+
         self.btnVideo.setMaximumWidth(20)
         self.btnTranscr.setMaximumWidth(20)
         self.btnDefs.setMaximumWidth(20)
+
+        # load save create
+        #self.btnLoad = QtGui.QPushButton(self.dockWidgetContents)
+        #self.btnLoad.setText("Load")
+        #self.horizontalLayout.addWidget(self.btnLoad)
+        #self.btnLoad.clicked.connect(LineDefs.loaddefs)
+        #self.btnLoad.setDisabled(True)
+
+        self.btnSave = QtGui.QPushButton(self.dockWidgetContents)
+        self.btnSave.setText("Save")
+        self.horizontalLayout.addWidget(self.btnSave)
+        self.btnSave.clicked.connect(LineDefs.savedefs)
+        self.btnSave.setDisabled(True)
+
+        self.btnCreate = QtGui.QPushButton(self.dockWidgetContents)
+        self.btnCreate.setText("Create")
+        self.horizontalLayout.addWidget(self.btnCreate)
+        self.btnCreate.clicked.connect(LineDefs.createdefs)
+        self.btnCreate.setDisabled(True)
+
+        #self.btnLoad.setMaximumWidth(90)
+        self.btnSave.setMaximumWidth(90)
+        self.btnCreate.setMaximumWidth(90)
+
+#        print self.comboVideo.height()
+#        print self.btnCreate.height()
+#        self.comboDefs.setFixedHeight(40)
+#        print self.comboDefs.height()
 
         self.setWidget(self.dockWidgetContents)
         self.setWindowTitle("Directory Select")
@@ -362,15 +383,25 @@ class cDockDirSelect(QtGui.QDockWidget):
         self.comboTranscrDir = ""
         self.comboTranscr.currentIndexChanged.connect(self.settranscrfile)
 
+        self.comboDefsDir = ""
+        self.comboDefs.currentIndexChanged.connect(self.setdefsfile)
+
 
     def setvideofile(self):
         qp.init = True  # reset video source
         fn = self.comboVideoDir
-        qp.fileEdit = fn+"\\"+self.comboVideo.currentText()
+        qp.fileEdit = fn + "\\" + self.comboVideo.currentText()
 
     def settranscrfile(self):
         fn = self.comboTranscrDir
-        subsList.loadSubs(fn+"\\"+self.comboTranscr.currentText())
+        subsList.loadSubs(fn + "\\" + self.comboTranscr.currentText())
+
+    def setdefsfile(self):
+        if self.comboDefs.currentText() != "":
+            LineDefs.filename = self.comboDefsDir + "/" + self.comboDefs.currentText()
+            #self.btnLoad.setDisabled(False)
+            self.btnSave.setDisabled(False)
+            LineDefs.loaddefs()
 
     def showDialogV(self):
         dialog = QtGui.QFileDialog()
@@ -378,7 +409,9 @@ class cDockDirSelect(QtGui.QDockWidget):
         dirNames = QtGui.QFileDialog.getOpenFileName
         if dialog.exec_():
             dirNames = dialog.selectedFiles()
-        onlyfiles = [ f for f in listdir(dirNames[0]) if isfile(join(dirNames[0],f)) ]
+        onlyfiles = [f for f in listdir(dirNames[0]) if isfile(join(dirNames[0], f))]
+        self.comboVideo.clear()
+        self.comboVideo.addItem("")
         self.comboVideo.addItems(onlyfiles)
         self.comboVideoDir = dirNames[0]
 
@@ -388,56 +421,135 @@ class cDockDirSelect(QtGui.QDockWidget):
         dirNames = QtGui.QFileDialog.getOpenFileName
         if dialog.exec_():
             dirNames = dialog.selectedFiles()
-        onlyfiles = [ f for f in listdir(dirNames[0]) if isfile(join(dirNames[0],f)) ]
+        onlyfiles = [f for f in listdir(dirNames[0]) if isfile(join(dirNames[0], f))]
+        self.comboTranscr.clear()
+        self.comboTranscr.addItem("")
         self.comboTranscr.addItems(onlyfiles)
         self.comboTranscrDir = dirNames[0]
 
     def showDialogD(self):
+        # open file dialog, get folder, add folder files to combobox
+        # set basedir, enable Create button
         dialog = QtGui.QFileDialog()
         dialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
         dirNames = QtGui.QFileDialog.getOpenFileName
         if dialog.exec_():
             dirNames = dialog.selectedFiles()
-        onlyfiles = [ f for f in listdir(dirNames[0]) if isfile(join(dirNames[0],f)) ]
+        onlyfiles = [f for f in listdir(dirNames[0]) if isfile(join(dirNames[0], f))] # should be .tdef !
+        self.comboDefs.clear()
+        self.comboDefs.addItem("")
         self.comboDefs.addItems(onlyfiles)
+        self.comboDefsDir = dirNames[0]
+        LineDefs.basedir = dirNames[0]
+        self.btnCreate.setDisabled(False)
+
+
+class cLineDefs(QtGui.QTextBrowser):
+    def __init__(self):
+        super(cLineDefs, self).__init__()
+        self.TranscriptLine = list()
+        self.Expression = list()
+        self.Reading = list()
+        self.Glossary = list()
+        self.Result = ""
+        self.filename = ""
+        self.basedir = ""
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        self.setFont(font)
+
+    def setloaddefs(self, filename):
+        self.filename = filename
+
+    def createdefs(self):
+        # get new filename from input dialog
+        # set as current filename(.tdef), create new empty file
+        # add new file to combobox and set it as current
+        text, ok = QtGui.QInputDialog.getText(self, "Create Definitions File", "File name:", QtGui.QLineEdit.Normal, "")
+        if ok and text != '':
+            self.filename = self.basedir + "/" + text + ".tdef"
+            file = open(self.filename, 'w')
+            data = {'TranscriptLine': self.TranscriptLine, 'Expression': self.Expression, 'Reading': self.Reading, 'Glossary': self.Glossary}
+            pickle.dump(data, file)
+            file.close()
+
+            dockDirSelect.comboDefs.addItem(text + ".tdef") # hacky, avoids re-query of dir
+            index = dockDirSelect.comboDefs.findText(text + ".tdef")
+            dockDirSelect.comboDefs.setCurrentIndex(index)
+
+    def loaddefs(self):
+        file = open(self.filename, 'r')
+        data = pickle.load(file)
+        file.close()
+        #print "file closed"
+        self.TranscriptLine = data['TranscriptLine']
+        self.Expression = data['Expression']
+        self.Reading = data['Reading']
+        self.Glossary = data['Glossary']
+
+    def savedefs(self): #, filename):  # Testing save defs
+        file = open(self.filename, 'w')
+        data = {'TranscriptLine': self.TranscriptLine, 'Expression': self.Expression, 'Reading': self.Reading, 'Glossary': self.Glossary}
+        pickle.dump(data, file)
+        file.close()
+
+    def add(self, expression, reading, glossary):
+        line = subsList.currentRow
+        self.TranscriptLine.append(line)
+        self.Expression.append(expression)
+        self.Reading.append(reading)
+        self.Glossary.append(glossary)
+
+        self.lookup(line)
+
+    def lookup(self, line):
+        self.clear() # clear linedefs and append matching defs for transcript line
+        if line in self.TranscriptLine:
+            index = list()
+            for z in range(len(self.TranscriptLine)):
+                if line == self.TranscriptLine[z]:
+                    index.append(z)
+
+            for z in range(len(index)):
+                result = self.Expression[index[z]] + " [" + self.Reading[index[z]] + "] " + self.Glossary[index[z]] + "\n"
+                LineDefs.append(result)
+
 
 if __name__ == "__main__":
     qapp = QtGui.QApplication(sys.argv)
     w = QtGui.QMainWindow()
     w.setWindowTitle("Trans-Player-Desktop v0.1")
 
-    # Video Player
+# Video Player
     dockVideo = QtGui.QDockWidget("Translation Player")
     qp = QPlayer()
     dockVideo.setWidget(qp)
     w.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockVideo)
-    #fn = "G:/Documents and Settings/5k3105/Desktop/anime/sidonia/[DeadFish] Sidonia no Kishi - 04 [720p][AAC].mp4"
+    # fn = "G:/Documents and Settings/5k3105/Desktop/anime/sidonia/[DeadFish] Sidonia no Kishi - 04 [720p][AAC].mp4"
     #qp.fileEdit = fn
     dockVideo.setMinimumWidth(500)
 
-    # Transcript List
+# Transcript List
     subsList = cSubsList()
     subsList.itemDoubleClicked.connect(subsList.gotoLine)
     #fn = "G:/Documents and Settings/5k3105/Desktop/anime/sidonia/timed for [Underwater] release Shidonia_No_Kishi_004.srt"
     #subsList.loadSubs(fn)
     w.setCentralWidget(subsList)
 
+# Vocab and Kanji
     dockVocab = cDockVocab()
     w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockVocab)
     dockKanji = cDockKanji()
     w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockKanji)
     dockKanji.hide()
 
-    # Line Defs -- add defs load/save
-    LineDefs = QtGui.QTextBrowser()
+# Line Defs -- add defs load/save
+    LineDefs = cLineDefs()
     dockLineDefs = QtGui.QDockWidget("Line Defs")
     dockLineDefs.setWidget(LineDefs)
-    font = QtGui.QFont()
-    font.setPointSize(16)
-    LineDefs.setFont(font)
-    LineDefs.setMinimumWidth(250)
+    LineDefs.setMinimumWidth(250) # sets the whole right side
 
-    # Minireader / Lookup Line
+# Lookup Line (Minireader)
     lookupLine = MiniReader(dockKanji, dockVocab, dockVocab.textVocabDefs, dockKanji.textKanjiDefs, LineDefs)
     dockLookupLine = QtGui.QDockWidget("Lookup Line")
     dockLookupLine.setWidget(lookupLine)
@@ -446,9 +558,14 @@ if __name__ == "__main__":
     w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockLookupLine)
     w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockLineDefs)
 
+# Directory Select
     dockDirSelect = cDockDirSelect()
     w.addDockWidget(QtCore.Qt.TopDockWidgetArea, dockDirSelect)
 
+# hack?
+    #dockDirSelect.btnLoad.clicked.connect(LineDefs.loaddefs(""))
+    #dockDirSelect.btnSave.clicked.connect(LineDefs.loaddefs(""))
+    #dockDirSelect.btnCreate.clicked.connect(LineDefs.loaddefs(""))
 
     w.showMaximized()
     qapp.exec_()
