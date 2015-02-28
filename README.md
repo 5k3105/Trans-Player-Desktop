@@ -1,7 +1,5 @@
 # Trans-Player-Desktop
 
-Translation Player
-
 Load japanese video file and .srt transcript file (http://kitsunekko.net/).
 Interact with transcript file by looking up words with embedded yomichan dictionary.
 Save vocabulary words per transcript line.
@@ -14,7 +12,7 @@ At this point, in order to get it to work you will need python, pyside and a few
 
 It's pretty ugly looking but it does the basics which is: play the video and follow the transcript.
 
-[url=http://s376.photobucket.com/user/Christian_Lott/media/trp_zpsiqrm2a1t.png.html][img]http://i376.photobucket.com/albums/oo201/Christian_Lott/trp_zpsiqrm2a1t.png[/img][/url]
+[img]http://i376.photobucket.com/albums/oo201/Christian_Lott/trp_zpsiqrm2a1t.png[/img]
 
 You can jump around the video by clicking on a line in the Transcript list (center list). While the video is playing, the current transcript line is highlighted, following along with the video.
 
