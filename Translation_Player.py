@@ -520,7 +520,6 @@ class cLineDefs(QtGui.QTextBrowser):
 
 class cSession():
     def __init__(self):
-        #super(cSession, self).__init__()
         pass
 
     def save(self):
@@ -543,7 +542,7 @@ class cSession():
         try:
             file = open((QtCore.QDir.currentPath() + "/session"), 'r')
             data = pickle.load(file)
-            #file.close()
+            file.close()
             #print "file closed"
             dockDirSelect.comboTranscrDir = data['comboTranscrDir']
             dockDirSelect.comboDefsDir = data['comboDefsDir']
@@ -557,21 +556,16 @@ class cSession():
             dockDirSelect.comboDefs.setCurrentIndex(dockDirSelect.comboDefs.findText(data['defsfile']))
             dockDirSelect.comboTranscr.setCurrentIndex(dockDirSelect.comboTranscr.findText(data['transcrfile']))
             dockDirSelect.comboVideo.setCurrentIndex(dockDirSelect.comboVideo.findText(data['videofile']))
-            #
 
             # load file
             dockDirSelect.settranscrfile()
             dockDirSelect.setvideofile()
             dockDirSelect.setdefsfile()
 
-            statusbar.showMessage("Session File Loaded: " + (QtCore.QDir.currentPath() + "/session"))
+            statusbar.showMessage("Session Restored: " + (QtCore.QDir.currentPath() + "/session"))
 
-        finally:
+        finally: # in case no session file yet
             return None
-            #file.close()
-        #except "IOError":
-        #    return None
-
 
 if __name__ == "__main__":
     qapp = QtGui.QApplication(sys.argv)
@@ -624,7 +618,7 @@ if __name__ == "__main__":
 # Restore Session
     session = cSession()
     session.restore()
-    #w.close.connect(session.save)
     qapp.aboutToQuit.connect(session.save)
+
     w.showMaximized()
     qapp.exec_()
