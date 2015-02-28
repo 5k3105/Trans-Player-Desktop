@@ -117,6 +117,7 @@ class QPlayer(QtGui.QWidget):
         self.fileEdit = ""
         self.lcdTimer = QtGui.QLCDNumber()
         self.lcdTimer.display("00:00")
+        #self.lcdTimer.segmentStyle(QtGui.QLCDNumber.Filled)
 
         #self.browseButton = QtGui.QPushButton("Browse")
         #self.browseButton.setIcon(QtGui.QIcon(":/images/folder-music.png"))
@@ -263,10 +264,10 @@ class cVideoWidget(Phonon.VideoWidget):
                 self.enterFullScreen()
                 self.FS = True
         if event.key() == QtCore.Qt.Key_Space:  # Pause with space
-            if self.qp.player.state() == Phonon.PausedState:
-                self.qp.player.play()
+            if qp.player.state() == Phonon.PausedState:
+                qp.player.play()
             else:
-                self.qp.player.pause()
+                qp.player.pause()
 
 class cDockKanji(QtGui.QDockWidget):
     def __init__(self):
@@ -390,7 +391,6 @@ class cDockDirSelect(QtGui.QDockWidget):
         self.comboDefsDir = ""
         self.comboDefs.currentIndexChanged.connect(self.setdefsfile)
 
-
     def setvideofile(self):
         if self.comboVideo.currentText() != "":
             qp.init = True  # reset video source
@@ -411,40 +411,15 @@ class cDockDirSelect(QtGui.QDockWidget):
             LineDefs.loaddefs()
 
     def showDialogV(self):
-        dialog = QtGui.QFileDialog()
-        dialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
-        dirNames = QtGui.QFileDialog.getOpenFileName
-        if dialog.exec_():
-            dirNames = dialog.selectedFiles()
-        onlyfiles = [f for f in listdir(dirNames[0]) if isfile(join(dirNames[0], f))]
-        onlyvids = list()
-        for x in onlyfiles:
-            if x.split(".")[-1] in("mp4", "mkv") :
-                onlyvids.append(x)
-        self.comboVideo.clear()
-        self.comboVideo.addItem("")
-        self.comboVideo.addItems(onlyvids)
-        self.comboVideoDir = dirNames[0]
-        statusbar.showMessage("Video Folder set to: " + dirNames[0])
+        self.comboVideoDir = self.showdialog("mp4,mkv", self.comboVideo,"Video")
 
     def showDialogT(self):
-        dialog = QtGui.QFileDialog()
-        dialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
-        dirNames = QtGui.QFileDialog.getOpenFileName
-        if dialog.exec_():
-            dirNames = dialog.selectedFiles()
-        onlyfiles = [f for f in listdir(dirNames[0]) if isfile(join(dirNames[0], f))]
-        onlysrts = list()
-        for x in onlyfiles:
-            if x.split(".")[-1] == "srt" :
-                onlysrts.append(x)
-        self.comboTranscr.clear()
-        self.comboTranscr.addItem("")
-        self.comboTranscr.addItems(onlysrts)
-        self.comboTranscrDir = dirNames[0]
-        statusbar.showMessage("Transcript Folder set to: " + dirNames[0])
+        self.comboTranscrDir = self.showdialog("srt",self.comboTranscr, "Transcript")
 
-    def showDialogD(self):
+    def showDialogD(self): # Definitions
+        self.comboDefsDir = self.showdialog("tdef", self.comboDefs, "Definitions")
+
+    def showdialog(self, filter, combo, text):
         # open file dialog, get folder, add folder files to combobox
         # set basedir, enable Create button
         dialog = QtGui.QFileDialog()
@@ -452,18 +427,26 @@ class cDockDirSelect(QtGui.QDockWidget):
         dirNames = QtGui.QFileDialog.getOpenFileName
         if dialog.exec_():
             dirNames = dialog.selectedFiles()
-        onlyfiles = [f for f in listdir(dirNames[0]) if isfile(join(dirNames[0], f))] # should be .tdef !
-        onlydefs = list()
+
+        self.populatecombo(filter, combo, dirNames[0], text)
+        return dirNames[0]
+
+    def populatecombo(self, filter, combo, dir, text):
+        onlyfiles = [f for f in listdir(dir) if isfile(join(dir, f))]
+        files = list()
         for x in onlyfiles:
-            if x.split(".")[-1] == "tdef" :
-                onlydefs.append(x)
-        self.comboDefs.clear()
-        self.comboDefs.addItem("")
-        self.comboDefs.addItems(onlydefs)
-        self.comboDefsDir = dirNames[0]
-        LineDefs.basedir = dirNames[0]
-        self.btnCreate.setDisabled(False)
-        statusbar.showMessage("Definitions Folder set to: " + dirNames[0])
+            if x.split(".")[-1] in filter :
+                files.append(x)
+
+        combo.clear()
+        combo.addItem("")
+        combo.addItems(files)
+
+        if text == "Definitions":
+            LineDefs.basedir = dir
+            self.btnCreate.setDisabled(False)
+
+        statusbar.showMessage(text + " Folder set to: " + dir)
 
 class cLineDefs(QtGui.QTextBrowser):
     def __init__(self):
@@ -535,6 +518,60 @@ class cLineDefs(QtGui.QTextBrowser):
                 result = self.Expression[index[z]] + " [" + self.Reading[index[z]] + "] " + self.Glossary[index[z]] + "\n"
                 LineDefs.append(result)
 
+class cSession():
+    def __init__(self):
+        #super(cSession, self).__init__()
+        pass
+
+    def save(self):
+        file = open((QtCore.QDir.currentPath() + "/session"), 'w')
+        data = {'comboTranscrDir': dockDirSelect.comboTranscrDir,
+                'comboDefsDir': dockDirSelect.comboDefsDir,
+                'comboVideoDir': dockDirSelect.comboVideoDir,
+                'defsfile': dockDirSelect.comboDefs.currentText(),    # .currentIndex(),
+                'transcrfile': dockDirSelect.comboTranscr.currentText(),
+                'videofile': dockDirSelect.comboVideo.currentText()}
+
+        pickle.dump(data, file)
+        file.close()
+        #statusbar.showMessage("Session File Saved: " + (QtCore.QDir.currentPath() + "/session"), 2000)
+        print "Session File Saved: " + (QtCore.QDir.currentPath() + "/session")
+        #subsList.currentRow
+        # video position
+
+    def restore(self):
+        try:
+            file = open((QtCore.QDir.currentPath() + "/session"), 'r')
+            data = pickle.load(file)
+            #file.close()
+            #print "file closed"
+            dockDirSelect.comboTranscrDir = data['comboTranscrDir']
+            dockDirSelect.comboDefsDir = data['comboDefsDir']
+            dockDirSelect.comboVideoDir = data['comboVideoDir']
+
+            dockDirSelect.populatecombo("tdef", dockDirSelect.comboDefs, dockDirSelect.comboDefsDir, "Definitions")
+            dockDirSelect.populatecombo("srt", dockDirSelect.comboTranscr, dockDirSelect.comboTranscrDir, "Transcript")
+            dockDirSelect.populatecombo("mp4,mkv", dockDirSelect.comboVideo, dockDirSelect.comboVideoDir, "Video")
+
+            # find file, set file in combo
+            dockDirSelect.comboDefs.setCurrentIndex(dockDirSelect.comboDefs.findText(data['defsfile']))
+            dockDirSelect.comboTranscr.setCurrentIndex(dockDirSelect.comboTranscr.findText(data['transcrfile']))
+            dockDirSelect.comboVideo.setCurrentIndex(dockDirSelect.comboVideo.findText(data['videofile']))
+            #
+
+            # load file
+            dockDirSelect.settranscrfile()
+            dockDirSelect.setvideofile()
+            dockDirSelect.setdefsfile()
+
+            statusbar.showMessage("Session File Loaded: " + (QtCore.QDir.currentPath() + "/session"))
+
+        finally:
+            return None
+            #file.close()
+        #except "IOError":
+        #    return None
+
 
 if __name__ == "__main__":
     qapp = QtGui.QApplication(sys.argv)
@@ -543,8 +580,9 @@ if __name__ == "__main__":
     statusbar = QtGui.QStatusBar(w)
     w.setStatusBar(statusbar)
 
+
 # Video Player
-    dockVideo = QtGui.QDockWidget("Translation Player")
+    dockVideo = QtGui.QDockWidget("Video Player")
     qp = QPlayer()
     dockVideo.setWidget(qp)
     w.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockVideo)
@@ -570,7 +608,7 @@ if __name__ == "__main__":
 
 # Lookup Line (Minireader)
     lookupLine = MiniReader(dockKanji, dockVocab, dockVocab.textVocabDefs, dockKanji.textKanjiDefs, LineDefs)
-    dockLookupLine = QtGui.QDockWidget("Lookup Line")
+    dockLookupLine = QtGui.QDockWidget("Transcript Line Lookup")
     dockLookupLine.setWidget(lookupLine)
     dockLookupLine.setMaximumHeight(90)
 
@@ -583,5 +621,10 @@ if __name__ == "__main__":
 
     statusbar.showMessage("Translation Player Started . . .")
 
+# Restore Session
+    session = cSession()
+    session.restore()
+    #w.close.connect(session.save)
+    qapp.aboutToQuit.connect(session.save)
     w.showMaximized()
     qapp.exec_()
