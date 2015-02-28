@@ -565,5 +565,7 @@ if __name__ == "__main__":
     dockDirSelect = cDockDirSelect()
     w.addDockWidget(QtCore.Qt.TopDockWidgetArea, dockDirSelect)
 
+    statusbar.showMessage("Translation Player Started . . .")
+
     w.showMaximized()
     qapp.exec_()
