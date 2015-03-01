@@ -3,14 +3,12 @@
 Load japanese video file and .srt transcript file (http://kitsunekko.net/).
 Interact with transcript file by looking up words with embedded yomichan dictionary.
 Save vocabulary words per transcript line.
-
 -------------------------------------------------
-
-I started a python project so I would be able to read transcript 'srt' files while watching anime and look up words in the transcript line automatically.
+Read transcript 'srt' files while watching anime and look up words in the transcript line automatically. Save and edit the defintions.
 
 At this point, in order to get it to work you will need python, pyside and a few other python libraries installed.. so it's purely a developer version. I've got it up on github with the hope of help from the community. I am working on getting a standalone exe version soon but I'm having to ask questions on forums so it will take time.
 
-It's pretty ugly looking but it does the basics which is: play the video and follow the transcript.
+It's still beta but it does the basics which is: play the video and follow the transcript.
 
 ![ScreenShot](2015-02-28_210645.png)
 
