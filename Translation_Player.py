@@ -446,9 +446,6 @@ class cDockDirSelect(QtGui.QDockWidget):
 
         statusbar.showMessage(text + " Folder set to: " + dir)
 
-def here(index):
-    print "here here here" + index
-
 class cLineDefs(QtGui.QTextBrowser):
     def __init__(self):
         super(cLineDefs, self).__init__()
@@ -462,9 +459,7 @@ class cLineDefs(QtGui.QTextBrowser):
         font = QtGui.QFont()
         font.setPointSize(16)
         self.setFont(font)
-        #self.setSource(QtCore.QUrl())
-        #self.setOpenLinks(False)
-        #self.anchorClicked.connect(self.deleteDef())
+
         self.setAcceptDrops(False)
         self.setOpenLinks(False)
         self.anchorClicked.connect(self.onDefsAnchorClicked)
@@ -538,20 +533,13 @@ class cLineDefs(QtGui.QTextBrowser):
             html = unicode()
             for z in range(len(index)):
                 html += self.buildDef(self.Expression[index[z]], self.Reading[index[z]], self.Glossary[index[z]], index[z])
-                #print self.Expression[index[z]]
-                #print self.TranscriptLine[index[z]]
-                #print index[z]
 
-                # result = self.Expression[index[z]] + " [" + self.Reading[index[z]] + "] " + self.Glossary[index[z]] + "\n"
-                # LineDefs.append(result)
-
-            #LineDefs.append(self.wrapDefs(html))
             LineDefs.append(self.wrapDefs(html))
-            #print self.wrapDefs(html)
+
 
     def buildDef(self, expression, reading, glossary, index):
-        reading = u'<span class = "reading">[{0}]</span>'.format(reading) #<br/>
-        links = '<a href = "deleteDef:{0}"><img src = "://ui/img/icon_copy_definition.png" align = "right"/></a>'.format(index)
+        reading = u'<span class = "reading">[{0}]</span>'.format(reading)
+        links = '<a href = "deleteDef:{0}"><img src = "://img/icon_copy_definition.png" align = "right"/></a>'.format(index)
         html = u"""
             <span class = "links">{0}</span>
             <span class = "expression">{1}</span>
@@ -570,8 +558,6 @@ class cLineDefs(QtGui.QTextBrowser):
             body {{ background-color: {0}; color: {1}; font-size: 11pt; }}
             span.expression {{ font-size: 15pt; }}
             </style></head><body>""".format("grey", "green") + html + "</body></html>"
-
-
 
 class cSession():
     def __init__(self):
@@ -628,7 +614,6 @@ if __name__ == "__main__":
     w.setWindowTitle("Trans-Player-Desktop v0.2")
     statusbar = QtGui.QStatusBar(w)
     w.setStatusBar(statusbar)
-
 
 # Video Player
     dockVideo = QtGui.QDockWidget("Video Player")
