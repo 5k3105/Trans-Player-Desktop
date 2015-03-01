@@ -17,7 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from PySide import QtGui, QtCore  # PyQt4
+from PySide import QtCore  # PyQt4
+from PySide.QtGui import *
+
 #from yomi_base import japanese
 #from yomi_base.preference_data import Preferences
 
@@ -28,7 +30,7 @@ from os import listdir
 from os.path import isfile, join
 from PySide.phonon import Phonon
 
-class cSubsList(QtGui.QListWidget):
+class cSubsList(QListWidget):
     def __init__(self):
         super(cSubsList, self).__init__()
 
@@ -59,7 +61,7 @@ class cSubsList(QtGui.QListWidget):
             g = g + 1
 
         for i in xrange(self.count()):
-            self.item(i).setFont(QtGui.QFont('Meiryo', 16))  # MS Mincho
+            self.item(i).setFont(QFont('Meiryo', 16))  # MS Mincho
 
         # back up 1:33
         # self.subs.shift(seconds=-30) # Move all subs 2 seconds earlier
@@ -75,7 +77,7 @@ class cSubsList(QtGui.QListWidget):
         self.nextSubEnd = i.end.ordinal
 
     def gotoLine(self):
-        self.item(self.currentRow).setBackground(QtGui.QColor('white'))
+        self.item(self.currentRow).setBackground(QColor('white'))
 
         g = self.currentIndex()
         self.currentRow = g.row()
@@ -92,9 +94,9 @@ class cSubsList(QtGui.QListWidget):
         #self.textEditor.append(self.subs[g.row()].text)
         LineDefs.lookup(self.currentRow)
 
-class QPlayer(QtGui.QWidget):
+class QPlayer(QWidget):
     def __init__(self):
-        # QtGui.QWidget.__init__(self)
+        # QWidget.__init__(self)
         super(QPlayer, self).__init__()
         self.audioOuptut = Phonon.AudioOutput(Phonon.MusicCategory, self)
         self.player = Phonon.MediaObject(self)
@@ -122,55 +124,55 @@ class QPlayer(QtGui.QWidget):
 
     def buildGUI(self):
 
-        # self.fileLabel = QtGui.QLabel("File")
-        # self.fileEdit = QtGui.QLineEdit()
+        # self.fileLabel = QLabel("File")
+        # self.fileEdit = QLineEdit()
         #self.fileLabel.setBuddy(self.fileEdit)
         self.fileEdit = ""
-        self.lcdTimer = QtGui.QLCDNumber()
+        self.lcdTimer = QLCDNumber()
         self.lcdTimer.display("00:00")
-        #self.lcdTimer.segmentStyle(QtGui.QLCDNumber.Filled)
+        #self.lcdTimer.segmentStyle(QLCDNumber.Filled)
 
-        #self.browseButton = QtGui.QPushButton("Browse")
-        #self.browseButton.setIcon(QtGui.QIcon(":/images/folder-music.png"))
+        #self.browseButton = QPushButton("Browse")
+        #self.browseButton.setIcon(QIcon(":/images/folder-music.png"))
 
-        self.playButton = QtGui.QPushButton("Play")
-        self.playButton.setIcon(QtGui.QIcon(":/images/play.png"))
+        self.playButton = QPushButton("Play")
+        self.playButton.setIcon(QIcon(":/images/play.png"))
         self.playButton.setEnabled(True)
 
-        self.pauseButton = QtGui.QPushButton("Pause")
-        self.pauseButton.setIcon(QtGui.QIcon(":/images/pause.png"))
+        self.pauseButton = QPushButton("Pause")
+        self.pauseButton.setIcon(QIcon(":/images/pause.png"))
 
-        self.stopButton = QtGui.QPushButton("Stop")
-        self.stopButton.setIcon(QtGui.QIcon(":/images/stop.png"))
+        self.stopButton = QPushButton("Stop")
+        self.stopButton.setIcon(QIcon(":/images/stop.png"))
 
-        #self.fullScreenButton = QtGui.QPushButton("Full Screen")  ######
+        #self.fullScreenButton = QPushButton("Full Screen")  ######
 
-        #upperLayout = QtGui.QHBoxLayout()
+        #upperLayout = QHBoxLayout()
         #upperLayout.addWidget(self.fileLabel)
         #upperLayout.addWidget(self.fileEdit)
         #upperLayout.addWidget(self.browseButton)
 
-        midLayout = QtGui.QHBoxLayout()
+        midLayout = QHBoxLayout()
         midLayout.addWidget(self.seekSlider)
         midLayout.addWidget(self.lcdTimer)
 
-        lowerLayout = QtGui.QHBoxLayout()
+        lowerLayout = QHBoxLayout()
         lowerLayout.addWidget(self.playButton)
         lowerLayout.addWidget(self.pauseButton)
         lowerLayout.addWidget(self.stopButton)
         #lowerLayout.addWidget(self.fullScreenButton)  #########
         lowerLayout.addWidget(self.volumeSlider)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QVBoxLayout()
         #layout.addLayout(upperLayout)
         layout.addWidget(self.videoWidget)
         layout.addLayout(midLayout)
         layout.addLayout(lowerLayout)
 
         self.setLayout(layout)
-        self.lcdTimer.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
-        self.seekSlider.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
-        self.volumeSlider.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        self.lcdTimer.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.seekSlider.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.volumeSlider.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
 
     def setupConnections(self):
@@ -203,7 +205,7 @@ class QPlayer(QtGui.QWidget):
         """
 
         if time > subsList.currentSubEnd:
-            subsList.item(subsList.currentRow).setBackground(QtGui.QColor('grey'))
+            subsList.item(subsList.currentRow).setBackground(QColor('grey'))
 
         if time > subsList.nextSubStart:
             subsList.currentRow = subsList.currentRow + 1
@@ -214,15 +216,15 @@ class QPlayer(QtGui.QWidget):
             subsList.nextSubStart = n.start.ordinal
             subsList.nextSubEnd = n.end.ordinal
 
-            subsList.item(subsList.currentRow - 1).setBackground(QtGui.QColor('white'))
-            subsList.item(subsList.currentRow).setBackground(QtGui.QColor('red'))
+            subsList.item(subsList.currentRow - 1).setBackground(QColor('white'))
+            subsList.item(subsList.currentRow).setBackground(QColor('red'))
 
             # browser text
             # w.body.appendInside("<span>" + w.subs[w.currentRow].text + "</span>")
             #w.span.setPlainText( w.subs[w.currentRow].text)
 
             #scroll to option. should center current item in list though.
-            subsList.ScrollHint = QtGui.QAbstractItemView.EnsureVisible
+            subsList.ScrollHint = QAbstractItemView.EnsureVisible
             subsList.scrollToItem(subsList.item(subsList.currentRow), subsList.ScrollHint)
 
             # Update LineDefs panel
@@ -243,7 +245,7 @@ class QPlayer(QtGui.QWidget):
         self.lcdTimer.display("00:00")
 
     def browseClicked(self):
-        f, _ = QtGui.QFileDialog.getOpenFileName(self)
+        f, _ = QFileDialog.getOpenFileName(self)
         if f != "":
             self.fileEdit.setText(f)
 
@@ -292,79 +294,79 @@ class cVideoWidget(Phonon.VideoWidget):
             qp.player.seek(time)
 
 
-class cDockKanji(QtGui.QDockWidget):
+class cDockKanji(QDockWidget):
     def __init__(self):
         super(cDockKanji, self).__init__()
 
-        self.dockWidgetContents = QtGui.QWidget()
+        self.dockWidgetContents = QWidget()
 
-        self.verticalLayout = QtGui.QVBoxLayout(self.dockWidgetContents)
+        self.verticalLayout = QVBoxLayout(self.dockWidgetContents)
 
-        self.textKanjiDefs = QtGui.QTextBrowser(self.dockWidgetContents)
+        self.textKanjiDefs = QTextBrowser(self.dockWidgetContents)
         self.textKanjiDefs.setAcceptDrops(False)
         self.textKanjiDefs.setOpenLinks(False)
 
         self.verticalLayout.addWidget(self.textKanjiDefs)
-        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout = QHBoxLayout()
 
-        self.label = QtGui.QLabel(self.dockWidgetContents)
+        self.label = QLabel(self.dockWidgetContents)
 
         self.horizontalLayout.addWidget(self.label)
-        self.textKanjiSearch = QtGui.QLineEdit(self.dockWidgetContents)
+        self.textKanjiSearch = QLineEdit(self.dockWidgetContents)
 
         self.horizontalLayout.addWidget(self.textKanjiSearch)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.setWidget(self.dockWidgetContents)
         self.setWindowTitle("Kanji")
 
-class cDockVocab(QtGui.QDockWidget):
+class cDockVocab(QDockWidget):
     def __init__(self):
         super(cDockVocab, self).__init__()
 
-        self.dockWidgetContents = QtGui.QWidget()
-        self.verticalLayout = QtGui.QVBoxLayout(self.dockWidgetContents)
-        self.textVocabDefs = QtGui.QTextBrowser(self.dockWidgetContents)
+        self.dockWidgetContents = QWidget()
+        self.verticalLayout = QVBoxLayout(self.dockWidgetContents)
+        self.textVocabDefs = QTextBrowser(self.dockWidgetContents)
         self.textVocabDefs.setAcceptDrops(False)
         self.textVocabDefs.setOpenLinks(False)
         self.verticalLayout.addWidget(self.textVocabDefs)
 
-        self.horizontalLayout = QtGui.QHBoxLayout()
-        self.label = QtGui.QLabel(self.dockWidgetContents)
+        self.horizontalLayout = QHBoxLayout()
+        self.label = QLabel(self.dockWidgetContents)
 
         self.horizontalLayout.addWidget(self.label)
-        self.textVocabSearch = QtGui.QLineEdit(self.dockWidgetContents)
+        self.textVocabSearch = QLineEdit(self.dockWidgetContents)
 
         self.horizontalLayout.addWidget(self.textVocabSearch)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.setWidget(self.dockWidgetContents)
         self.setWindowTitle("Vocabulary")
 
-class cDockDirSelect(QtGui.QDockWidget):
+class cDockDirSelect(QDockWidget):
     def __init__(self):
         super(cDockDirSelect, self).__init__()
 
-        self.dockWidgetContents = QtGui.QWidget()
-        self.horizontalLayout = QtGui.QHBoxLayout(self.dockWidgetContents)
+        self.dockWidgetContents = QWidget()
+        self.horizontalLayout = QHBoxLayout(self.dockWidgetContents)
         self.dockWidgetContents.setLayout(self.horizontalLayout)
 
-        self.comboVideo = QtGui.QComboBox(self.dockWidgetContents)
+        self.comboVideo = QComboBox(self.dockWidgetContents)
         self.horizontalLayout.addWidget(self.comboVideo)
-        self.btnVideo = QtGui.QPushButton(self.dockWidgetContents)
-        #self.btnVideo.setIcon(QtGui.QIcon(QtCore.QDir.currentPath() + "/img/icon_action_open.png"))
+        self.btnVideo = QPushButton(self.dockWidgetContents)
+        #self.btnVideo.setIcon(QIcon(QtCore.QDir.currentPath() + "/img/icon_action_open.png"))
         self.btnVideo.setText("+")
         self.horizontalLayout.addWidget(self.btnVideo)
         self.btnVideo.clicked.connect(self.showDialogV)
 
-        self.comboTranscr = QtGui.QComboBox(self.dockWidgetContents)
+        self.comboTranscr = QComboBox(self.dockWidgetContents)
         self.horizontalLayout.addWidget(self.comboTranscr)
-        self.btnTranscr = QtGui.QPushButton(self.dockWidgetContents)
+        self.btnTranscr = QPushButton(self.dockWidgetContents)
         self.btnTranscr.setText("+")
         self.horizontalLayout.addWidget(self.btnTranscr)
         self.btnTranscr.clicked.connect(self.showDialogT)
 
-        self.comboDefs = QtGui.QComboBox(self.dockWidgetContents)
+        self.comboDefs = QComboBox(self.dockWidgetContents)
         self.horizontalLayout.addWidget(self.comboDefs)
-        self.btnDefs = QtGui.QPushButton(self.dockWidgetContents)
+        self.btnDefs = QPushButton(self.dockWidgetContents)
         self.btnDefs.setText("+")
         self.horizontalLayout.addWidget(self.btnDefs)
         self.btnDefs.clicked.connect(self.showDialogD)
@@ -377,19 +379,19 @@ class cDockDirSelect(QtGui.QDockWidget):
         self.btnDefs.setMaximumWidth(35)
 
         # load save create
-        #self.btnLoad = QtGui.QPushButton(self.dockWidgetContents)
+        #self.btnLoad = QPushButton(self.dockWidgetContents)
         #self.btnLoad.setText("Load")
         #self.horizontalLayout.addWidget(self.btnLoad)
         #self.btnLoad.clicked.connect(LineDefs.loaddefs)
         #self.btnLoad.setDisabled(True)
 
-        self.btnSave = QtGui.QPushButton(self.dockWidgetContents)
+        self.btnSave = QPushButton(self.dockWidgetContents)
         self.btnSave.setText("Save Def")
         self.horizontalLayout.addWidget(self.btnSave)
         self.btnSave.clicked.connect(LineDefs.savedefs)
         self.btnSave.setDisabled(True)
 
-        self.btnCreate = QtGui.QPushButton(self.dockWidgetContents)
+        self.btnCreate = QPushButton(self.dockWidgetContents)
         self.btnCreate.setText("Create Def")
         self.horizontalLayout.addWidget(self.btnCreate)
         self.btnCreate.clicked.connect(LineDefs.createdefs)
@@ -443,9 +445,9 @@ class cDockDirSelect(QtGui.QDockWidget):
     def showdialog(self, filter, combo, text):
         # open file dialog, get folder, add folder files to combobox
         # set basedir, enable Create button
-        dialog = QtGui.QFileDialog()
-        dialog.setFileMode(QtGui.QFileDialog.DirectoryOnly)
-        dirNames = QtGui.QFileDialog.getOpenFileName
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.DirectoryOnly)
+        dirNames = QFileDialog.getOpenFileName
         if dialog.exec_():
             dirNames = dialog.selectedFiles()
             self.populatecombo(filter, combo, dirNames[0], text)
@@ -474,7 +476,7 @@ class cDockDirSelect(QtGui.QDockWidget):
 
         statusbar.showMessage(text + " Folder set to: " + dir)
 
-class cLineDefs(QtGui.QTextBrowser):
+class cLineDefs(QTextBrowser):
     def __init__(self):
         super(cLineDefs, self).__init__()
         self.TranscriptLine = list()
@@ -484,7 +486,7 @@ class cLineDefs(QtGui.QTextBrowser):
         self.Result = ""
         self.filename = ""
         self.basedir = ""
-        font = QtGui.QFont()
+        font = QFont()
         font.setPointSize(16)
         self.setFont(font)
 
@@ -515,7 +517,7 @@ class cLineDefs(QtGui.QTextBrowser):
         # get new filename from input dialog
         # set as current filename(.tdef), create new empty file
         # add new file to combobox and set it as current
-        text, ok = QtGui.QInputDialog.getText(self, "Create Definitions File", "File name:", QtGui.QLineEdit.Normal, "")
+        text, ok = QInputDialog.getText(self, "Create Definitions File", "File name:", QLineEdit.Normal, "")
         if ok and text != '':
             self.filename = self.basedir + "/" + text + ".tdef"
             file = open(self.filename, 'w')
@@ -584,9 +586,9 @@ class cLineDefs(QtGui.QTextBrowser):
         return html
 
     def wrapDefs(self, html):
-        #palette = QtGui.QApplication.palette()
-        #toolTipBg = palette.color(QtGui.QPalette.Window).name()
-        #toolTipFg = palette.color(QtGui.QPalette.WindowText).name()
+        #palette = QApplication.palette()
+        #toolTipBg = palette.color(QPalette.Window).name()
+        #toolTipFg = palette.color(QPalette.WindowText).name()
 
         return u"""
             <html><head><style>
@@ -594,21 +596,21 @@ class cLineDefs(QtGui.QTextBrowser):
             span.expression {{ font-size: 15pt; }}
             </style></head><body>""".format("grey", "green") + html + "</body></html>"
 
-class editDialog(QtGui.QDialog):
+class editDialog(QDialog):
     def __init__(self, text, index):
         super(editDialog, self).__init__()
         self.index = index
-        self.texteditor = QtGui.QTextEdit()
-        font = QtGui.QFont()
+        self.texteditor = QTextEdit()
+        font = QFont()
         font.setPointSize(12)
         self.texteditor.setFont(font)
 
         self.texteditor.setText(text)
-        vlayout = QtGui.QVBoxLayout()
+        vlayout = QVBoxLayout()
         vlayout.addWidget(self.texteditor)
 
-        btnOK = QtGui.QPushButton()
-        btnCancel = QtGui.QPushButton()
+        btnOK = QPushButton()
+        btnCancel = QPushButton()
         btnOK.setText("Save Defintion")
         btnCancel.setText("Cancel Edit")
         vlayout.addWidget(btnOK)
@@ -682,14 +684,14 @@ class cSession():
             return None
 
 if __name__ == "__main__":
-    qapp = QtGui.QApplication(sys.argv)
-    w = QtGui.QMainWindow()
+    qapp = QApplication(sys.argv)
+    w = QMainWindow()
     w.setWindowTitle("Trans-Player-Desktop v0.3")
-    statusbar = QtGui.QStatusBar(w)
+    statusbar = QStatusBar(w)
     w.setStatusBar(statusbar)
 
 # Video Player
-    dockVideo = QtGui.QDockWidget("Video Player")
+    dockVideo = QDockWidget("Video Player")
     qp = QPlayer()
     dockVideo.setWidget(qp)
     w.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockVideo)
@@ -709,13 +711,13 @@ if __name__ == "__main__":
 
 # Line Defs -- add defs load/save
     LineDefs = cLineDefs()
-    dockLineDefs = QtGui.QDockWidget("Definitions")
+    dockLineDefs = QDockWidget("Definitions")
     dockLineDefs.setWidget(LineDefs)
     LineDefs.setMinimumWidth(250) # sets the whole right side
 
 # Lookup Line (Minireader)
     lookupLine = MiniReader(dockKanji, dockVocab, dockVocab.textVocabDefs, dockKanji.textKanjiDefs, LineDefs)
-    dockLookupLine = QtGui.QDockWidget("Transcript Line Lookup")
+    dockLookupLine = QDockWidget("Transcript Line Lookup")
     dockLookupLine.setWidget(lookupLine)
     dockLookupLine.setMaximumHeight(90)
 
