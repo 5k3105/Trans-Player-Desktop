@@ -509,7 +509,7 @@ class cLineDefs(QTextBrowser):
             self.lookup(subsList.currentRow)
 
         if command == 'editDef':
-            print "editing: <" + str(index) + "> " + str(self.TranscriptLine[index]) + " " + self.Expression[index]
+            #print "editing: <" + str(index) + "> " + str(self.TranscriptLine[index]) + " " + self.Expression[index]
             editDialog(self.Glossary[index], index).exec_()
             #print text
 
