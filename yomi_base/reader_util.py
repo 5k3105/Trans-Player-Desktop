@@ -177,7 +177,7 @@ def buildVocabDef(definition, index, query):
         rules = ' &lt; '.join(definition['rules'])
         rules = '<span class = "rules">({0})<br/></span>'.format(rules)
 
-    links = '<a href = "copyVocabDef:{0}"><img src = "://img/img/icon_copy_definition.png" align = "right"/></a>'.format(index)
+    links = '<a href = "copyVocabDef:{0}"><img src = "img/icon_add_expression.png" align = "right"/></a>'.format(index)
     if query is not None:
         if query('vocab', markupVocabExp(definition)):
             links += '<a href = "addVocabExp:{0}"><img src = "://img/img/icon_add_expression.png" align = "right"/></a>'.format(index)
