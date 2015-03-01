@@ -501,7 +501,7 @@ class cLineDefs(QTextBrowser):
 
     def executeDefsCommand(self, command, index):
         if command == 'deleteDef':
-            print "removing: <" + str(index) + "> " + str(self.TranscriptLine[index]) + " " + self.Expression[index]
+            #print "removing: <" + str(index) + "> " + str(self.TranscriptLine[index]) + " " + self.Expression[index]
             del self.TranscriptLine[index]
             del self.Expression[index]
             del self.Reading[index]
