@@ -12,7 +12,7 @@ At this point, in order to get it to work you will need python, pyside and a few
 
 It's pretty ugly looking but it does the basics which is: play the video and follow the transcript.
 
-![ScreenShot](2015-02-28_205425.png)
+![ScreenShot](2015-02-28_210011.png)
 
 You can jump around the video by clicking on a line in the Transcript list (center). While the video is playing, the current transcript line is highlighted, following along with the video.
 
