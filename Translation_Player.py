@@ -328,6 +328,7 @@ class cDockDirSelect(QtGui.QDockWidget):
         self.comboVideo = QtGui.QComboBox(self.dockWidgetContents)
         self.horizontalLayout.addWidget(self.comboVideo)
         self.btnVideo = QtGui.QPushButton(self.dockWidgetContents)
+        #self.btnVideo.setIcon(QtGui.QIcon(QtCore.QDir.currentPath() + "/img/icon_action_open.png"))
         self.btnVideo.setText("+")
         self.horizontalLayout.addWidget(self.btnVideo)
         self.btnVideo.clicked.connect(self.showDialogV)
@@ -349,9 +350,9 @@ class cDockDirSelect(QtGui.QDockWidget):
         # enable Load/Save when file selected, set linedefs.filename
         self.comboDefs.editTextChanged.connect(self.setdefsfile)
 
-        self.btnVideo.setMaximumWidth(20)
-        self.btnTranscr.setMaximumWidth(20)
-        self.btnDefs.setMaximumWidth(20)
+        self.btnVideo.setMaximumWidth(35)
+        self.btnTranscr.setMaximumWidth(35)
+        self.btnDefs.setMaximumWidth(35)
 
         # load save create
         #self.btnLoad = QtGui.QPushButton(self.dockWidgetContents)
@@ -409,13 +410,13 @@ class cDockDirSelect(QtGui.QDockWidget):
             LineDefs.loaddefs()
 
     def showDialogV(self):
-        self.comboVideoDir = self.showdialog("mp4,mkv", self.comboVideo,"Video")
+        self.showdialog("mp4,mkv", self.comboVideo,"Video")
 
     def showDialogT(self):
-        self.comboTranscrDir = self.showdialog("srt",self.comboTranscr, "Transcript")
+        self.showdialog("srt",self.comboTranscr, "Transcript")
 
     def showDialogD(self): # Definitions
-        self.comboDefsDir = self.showdialog("tdef", self.comboDefs, "Definitions")
+        self.showdialog("tdef", self.comboDefs, "Definitions")
 
     def showdialog(self, filter, combo, text):
         # open file dialog, get folder, add folder files to combobox
@@ -425,9 +426,14 @@ class cDockDirSelect(QtGui.QDockWidget):
         dirNames = QtGui.QFileDialog.getOpenFileName
         if dialog.exec_():
             dirNames = dialog.selectedFiles()
+            self.populatecombo(filter, combo, dirNames[0], text)
 
-        self.populatecombo(filter, combo, dirNames[0], text)
-        return dirNames[0]
+            if text == "Video":
+               self.comboVideoDir = dirNames[0]
+            if text == "Transcript":
+                self.comboTranscrDir = dirNames[0]
+            if text == "Definitions":
+                self.comboDefsDir = dirNames[0]
 
     def populatecombo(self, filter, combo, dir, text):
         onlyfiles = [f for f in listdir(dir) if isfile(join(dir, f))]
@@ -480,7 +486,8 @@ class cLineDefs(QtGui.QTextBrowser):
 
         if command == 'editDef':
             print "editing: <" + str(index) + "> " + str(self.TranscriptLine[index]) + " " + self.Expression[index]
-
+            editDialog(self.Glossary[index], index).exec_()
+            #print text
 
     def createdefs(self):
         # get new filename from input dialog
@@ -515,7 +522,7 @@ class cLineDefs(QtGui.QTextBrowser):
         data = {'TranscriptLine': self.TranscriptLine, 'Expression': self.Expression, 'Reading': self.Reading, 'Glossary': self.Glossary}
         pickle.dump(data, file)
         file.close()
-        statusbar.showMessage("Definitions File Saved: " + self.filename, 2000)
+        statusbar.showMessage("Definitions File Saved: " + self.filename)
 
     def add(self, expression, reading, glossary):
         line = subsList.currentRow
@@ -539,7 +546,6 @@ class cLineDefs(QtGui.QTextBrowser):
                 html += self.buildDef(self.Expression[index[z]], self.Reading[index[z]], self.Glossary[index[z]], index[z])
 
             LineDefs.append(self.wrapDefs(html))
-
 
     def buildDef(self, expression, reading, glossary, index):
         reading = u'<span class = "reading">[{0}]</span>'.format(reading)
@@ -565,6 +571,40 @@ class cLineDefs(QtGui.QTextBrowser):
             body {{ background-color: {0}; color: {1}; font-size: 11pt; }}
             span.expression {{ font-size: 15pt; }}
             </style></head><body>""".format("grey", "green") + html + "</body></html>"
+
+class editDialog(QtGui.QDialog):
+    def __init__(self, text, index):
+        super(editDialog, self).__init__()
+        self.index = index
+        self.texteditor = QtGui.QTextEdit()
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.texteditor.setFont(font)
+
+        self.texteditor.setText(text)
+        vlayout = QtGui.QVBoxLayout()
+        vlayout.addWidget(self.texteditor)
+
+        btnOK = QtGui.QPushButton()
+        btnCancel = QtGui.QPushButton()
+        btnOK.setText("Save Defintion")
+        btnCancel.setText("Cancel Edit")
+        vlayout.addWidget(btnOK)
+        vlayout.addWidget(btnCancel)
+        self.setLayout(vlayout)
+
+        btnOK.clicked.connect(self.btnOKclicked)
+        btnCancel.clicked.connect(self.btnCancelclicked)
+        self.setWindowTitle("Edit Definition")
+        self.show()
+
+    def btnOKclicked(self):
+        LineDefs.Glossary[self.index] = self.texteditor.toPlainText()
+        LineDefs.lookup(subsList.currentRow)
+        self.close()
+
+    def btnCancelclicked(self):
+        self.close()
 
 class cSession():
     def __init__(self):
@@ -618,7 +658,7 @@ class cSession():
 if __name__ == "__main__":
     qapp = QtGui.QApplication(sys.argv)
     w = QtGui.QMainWindow()
-    w.setWindowTitle("Trans-Player-Desktop v0.2")
+    w.setWindowTitle("Trans-Player-Desktop v0.3")
     statusbar = QtGui.QStatusBar(w)
     w.setStatusBar(statusbar)
 
