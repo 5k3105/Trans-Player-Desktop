@@ -471,12 +471,16 @@ class cLineDefs(QtGui.QTextBrowser):
 
     def executeDefsCommand(self, command, index):
         if command == 'deleteDef':
-            print "removing: " + str(self.TranscriptLine[index]) + " " + self.Expression[index]
+            print "removing: <" + str(index) + "> " + str(self.TranscriptLine[index]) + " " + self.Expression[index]
             del self.TranscriptLine[index]
             del self.Expression[index]
             del self.Reading[index]
             del self.Glossary[index]
             self.lookup(subsList.currentRow)
+
+        if command == 'editDef':
+            print "editing: <" + str(index) + "> " + str(self.TranscriptLine[index]) + " " + self.Expression[index]
+
 
     def createdefs(self):
         # get new filename from input dialog
@@ -539,7 +543,10 @@ class cLineDefs(QtGui.QTextBrowser):
 
     def buildDef(self, expression, reading, glossary, index):
         reading = u'<span class = "reading">[{0}]</span>'.format(reading)
-        links = '<a href = "deleteDef:{0}"><img src = "://img/icon_copy_definition.png" align = "right"/></a>'.format(index)
+        links = '<a href = "deleteDef:{0}"><img src = "img/icon_action_quit.png" align = "right"/></a>'.format(index)
+        links += '<a><img src = "img/empty.png" align = "right"/></a>'
+        links += '<a href = "editDef:{0}"><img src = "img/icon_action_zoom_reset.png" align = "right"/></a>'.format(index)
+
         html = u"""
             <span class = "links">{0}</span>
             <span class = "expression">{1}</span>
