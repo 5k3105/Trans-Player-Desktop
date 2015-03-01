@@ -202,13 +202,13 @@ class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_Ma
             return
 
         definition = self.state.vocabDefs[index]
-        if command == 'addVocabExp':
-            markup = reader_util.markupVocabExp(definition)
-            self.ankiAddFact('vocab', markup)
-        if command == 'addVocabReading':
-            markup = reader_util.markupVocabReading(definition)
-            self.ankiAddFact('vocab', markup)
-        elif command == 'copyVocabDef':
+        #if command == 'addVocabExp':
+        #    markup = reader_util.markupVocabExp(definition)
+        #    self.ankiAddFact('vocab', markup)
+        #if command == 'addVocabReading':
+        #    markup = reader_util.markupVocabReading(definition)
+        #    self.ankiAddFact('vocab', markup)
+        if command == 'copyVocabDef':
             reader_util.copyVocabDef(definition)
 
             #if definition['reading']:

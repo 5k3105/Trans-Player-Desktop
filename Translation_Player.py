@@ -23,6 +23,7 @@ from PySide import QtGui, QtCore  # PyQt4
 
 from yomi_base.minireader import MiniReader
 import sys, pysrt, pickle
+
 from os import listdir
 from os.path import isfile, join
 from PySide.phonon import Phonon
@@ -299,16 +300,13 @@ class cDockVocab(QtGui.QDockWidget):
         super(cDockVocab, self).__init__()
 
         self.dockWidgetContents = QtGui.QWidget()
-
         self.verticalLayout = QtGui.QVBoxLayout(self.dockWidgetContents)
-
         self.textVocabDefs = QtGui.QTextBrowser(self.dockWidgetContents)
         self.textVocabDefs.setAcceptDrops(False)
         self.textVocabDefs.setOpenLinks(False)
-
         self.verticalLayout.addWidget(self.textVocabDefs)
-        self.horizontalLayout = QtGui.QHBoxLayout()
 
+        self.horizontalLayout = QtGui.QHBoxLayout()
         self.label = QtGui.QLabel(self.dockWidgetContents)
 
         self.horizontalLayout.addWidget(self.label)
@@ -448,6 +446,9 @@ class cDockDirSelect(QtGui.QDockWidget):
 
         statusbar.showMessage(text + " Folder set to: " + dir)
 
+def here(index):
+    print "here here here" + index
+
 class cLineDefs(QtGui.QTextBrowser):
     def __init__(self):
         super(cLineDefs, self).__init__()
@@ -461,6 +462,26 @@ class cLineDefs(QtGui.QTextBrowser):
         font = QtGui.QFont()
         font.setPointSize(16)
         self.setFont(font)
+        #self.setSource(QtCore.QUrl())
+        #self.setOpenLinks(False)
+        #self.anchorClicked.connect(self.deleteDef())
+        self.setAcceptDrops(False)
+        self.setOpenLinks(False)
+        self.anchorClicked.connect(self.onDefsAnchorClicked)
+
+    def onDefsAnchorClicked(self, url):
+        #print "here: " + url.toString()
+        command, index = unicode(url.toString()).split(':')
+        self.executeDefsCommand(command, int(index))
+
+    def executeDefsCommand(self, command, index):
+        if command == 'deleteDef':
+            print "removing: " + str(self.TranscriptLine[index]) + " " + self.Expression[index]
+            del self.TranscriptLine[index]
+            del self.Expression[index]
+            del self.Reading[index]
+            del self.Glossary[index]
+            self.lookup(subsList.currentRow)
 
     def createdefs(self):
         # get new filename from input dialog
@@ -514,9 +535,43 @@ class cLineDefs(QtGui.QTextBrowser):
                 if line == self.TranscriptLine[z]:
                     index.append(z)
 
+            html = unicode()
             for z in range(len(index)):
-                result = self.Expression[index[z]] + " [" + self.Reading[index[z]] + "] " + self.Glossary[index[z]] + "\n"
-                LineDefs.append(result)
+                html += self.buildDef(self.Expression[index[z]], self.Reading[index[z]], self.Glossary[index[z]], index[z])
+                #print self.Expression[index[z]]
+                #print self.TranscriptLine[index[z]]
+                #print index[z]
+
+                # result = self.Expression[index[z]] + " [" + self.Reading[index[z]] + "] " + self.Glossary[index[z]] + "\n"
+                # LineDefs.append(result)
+
+            #LineDefs.append(self.wrapDefs(html))
+            LineDefs.append(self.wrapDefs(html))
+            #print self.wrapDefs(html)
+
+    def buildDef(self, expression, reading, glossary, index):
+        reading = u'<span class = "reading">[{0}]</span>'.format(reading) #<br/>
+        links = '<a href = "deleteDef:{0}"><img src = "://ui/img/icon_copy_definition.png" align = "right"/></a>'.format(index)
+        html = u"""
+            <span class = "links">{0}</span>
+            <span class = "expression">{1}</span>
+            {2}
+            <span class = "glossary"><br/>{3}</span>
+            <br clear = "all"/><br/>""".format(links, expression, reading, glossary)
+        return html
+
+    def wrapDefs(self, html):
+        #palette = QtGui.QApplication.palette()
+        #toolTipBg = palette.color(QtGui.QPalette.Window).name()
+        #toolTipFg = palette.color(QtGui.QPalette.WindowText).name()
+
+        return u"""
+            <html><head><style>
+            body {{ background-color: {0}; color: {1}; font-size: 11pt; }}
+            span.expression {{ font-size: 15pt; }}
+            </style></head><body>""".format("grey", "green") + html + "</body></html>"
+
+
 
 class cSession():
     def __init__(self):
