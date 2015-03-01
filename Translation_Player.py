@@ -39,6 +39,16 @@ class cSubsList(QtGui.QListWidget):
             else:
                 qp.player.pause()
 
+        if event.key() == QtCore.Qt.Key_Right:
+            time = qp.player.currentTime()
+            time += 5000
+            qp.player.seek(time)
+
+        if event.key() == QtCore.Qt.Key_Left:
+            time = qp.player.currentTime()
+            time -= 5000
+            qp.player.seek(time)
+
     def loadSubs(self, file):
         self.subs = pysrt.open(file, encoding='utf-8')
 
@@ -264,11 +274,23 @@ class cVideoWidget(Phonon.VideoWidget):
             else:
                 self.enterFullScreen()
                 self.FS = True
+
         if event.key() == QtCore.Qt.Key_Space:  # Pause with space
             if qp.player.state() == Phonon.PausedState:
                 qp.player.play()
             else:
                 qp.player.pause()
+
+        if event.key() == QtCore.Qt.Key_Right:
+            time = qp.player.currentTime()
+            time += 5000
+            qp.player.seek(time)
+
+        if event.key() == QtCore.Qt.Key_Left:
+            time = qp.player.currentTime()
+            time -= 5000
+            qp.player.seek(time)
+
 
 class cDockKanji(QtGui.QDockWidget):
     def __init__(self):
@@ -621,6 +643,10 @@ class cSession():
 
         pickle.dump(data, file)
         file.close()
+
+        # not sure about this ....
+        LineDefs.savedefs()
+
         #statusbar.showMessage("Session File Saved: " + (QtCore.QDir.currentPath() + "/session"), 2000)
         print "Session File Saved: " + (QtCore.QDir.currentPath() + "/session")
         #subsList.currentRow
