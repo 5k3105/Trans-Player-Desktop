@@ -29,10 +29,12 @@ import sys, pysrt, pickle, os
 #from os import listdir, path
 #from os.path    # import isfile, join
 from PySide.phonon import Phonon
+import ass, datetime
 
 class cSubsList(QListWidget):
     def __init__(self):
         super(cSubsList, self).__init__()
+        self.ext = ""
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Space:
@@ -51,7 +53,7 @@ class cSubsList(QListWidget):
             time -= 5000
             qp.player.seek(time)
 
-    def loadSubs(self, file):
+    def loadSubsSrt(self, file):
         self.subs = pysrt.open(file, encoding='utf-8')
 
         self.clear()
@@ -76,7 +78,13 @@ class cSubsList(QListWidget):
         self.nextSubStart = i.start.ordinal
         self.nextSubEnd = i.end.ordinal
 
-    def gotoLine(self):
+        print self.subs[50].text
+        print self.subs[50].start
+        print self.subs[50].end
+        print self.subs[50].start.ordinal
+        print self.subs[50].end.ordinal
+
+    def gotoLineSrt(self):
         self.item(self.currentRow).setBackground(QColor('white'))
 
         g = self.currentIndex()
@@ -93,6 +101,78 @@ class cSubsList(QListWidget):
         # lookupLine.appendPlainText(self.subs[g.row()].text)
         #self.textEditor.append(self.subs[g.row()].text)
         LineDefs.lookup(self.currentRow)
+
+
+    def loadSubsAss(self, file):
+        # with open(file, "r") as f:
+        #     contents = f.read()
+        # self.subs = ass.parse(StringIO.StringIO(contents)).events
+        # self.clear()
+
+        with open(file, "r") as f:
+             self.subs = ass.parse(f).events
+
+        self.clear()
+        g = 0
+        for i in self.subs:
+            self.insertItem(g, i.text.decode('utf_8'))
+            g = g + 1
+
+        for i in xrange(self.count()):
+            self.item(i).setFont(QFont('Meiryo', 16))  # MS Mincho
+
+        i = self.subs[0]
+
+        self.currentSubStart = i.start.total_seconds() * 1000 + i.start.microseconds
+        self.currentSubEnd = i.end.total_seconds() * 1000 + i.end.microseconds
+        self.currentRow = 0
+        i = self.subs[1]
+        self.nextSubStart = i.start.total_seconds() * 1000 + i.start.microseconds
+        self.nextSubEnd = i.end.total_seconds() * 1000 + i.end.microseconds
+
+        #print self.subs[30].start.total_seconds() * 1000 + self.subs[30].start.microseconds
+
+        #millis = int(round(time.time() * 1000))
+        #delta = timedelta(milliseconds=timestamp)
+        #for event in self._events:
+        #    if event.start < delta < event.end:
+        #        return event.text
+        #return ""
+
+    def gotoLineAss(self):
+        self.item(self.currentRow).setBackground(QColor('white'))
+
+        g = self.currentIndex()
+        self.currentRow = g.row()
+        i = self.subs[g.row()]
+        self.currentSubStart = i.start.total_seconds() * 1000 + i.start.microseconds
+        self.currentSubEnd = i.end.total_seconds() * 1000 + i.end.microseconds
+        qp.player.seek(self.currentSubStart)
+        i = self.subs[g.row() + 1]
+        self.nextSubStart = i.start.total_seconds() * 1000 + i.start.microseconds
+        self.nextSubEnd = i.end.total_seconds() * 1000 + i.end.microseconds
+        # self.lcdTimer.display("11:00")
+        lookupLine.setPlainText(self.subs[g.row()].text.decode('utf_8'))
+        # lookupLine.appendPlainText(self.subs[g.row()].text)
+        #self.textEditor.append(self.subs[g.row()].text)
+        LineDefs.lookup(self.currentRow)
+
+    def loadSubs(self, file):
+        _, fileExtension = os.path.splitext(file)
+        #print fileExtension -- loaded twice?
+        if fileExtension == ".srt":
+            self.loadSubsSrt(file)
+            self.ext = ".srt"
+        if fileExtension == ".ass":
+            self.loadSubsAss(file)
+            self.ext = ".ass"
+
+    def gotoLine(self):
+        if self.ext == ".srt":
+            self.gotoLineSrt()
+
+        if self.ext == ".ass":
+            self.gotoLineAss()
 
 class QPlayer(QWidget):
     def __init__(self):
@@ -437,7 +517,7 @@ class cDockDirSelect(QDockWidget):
         self.showdialog("mp4,mkv", self.comboVideo,"Video")
 
     def showDialogT(self):
-        self.showdialog("srt",self.comboTranscr, "Transcript")
+        self.showdialog("ass,srt",self.comboTranscr, "Transcript")
 
     def showDialogD(self): # Definitions
         self.showdialog("tdef", self.comboDefs, "Definitions")
@@ -665,7 +745,7 @@ class cSession():
             dockDirSelect.comboVideoDir = data['comboVideoDir']
 
             dockDirSelect.populatecombo("tdef", dockDirSelect.comboDefs, dockDirSelect.comboDefsDir, "Definitions")
-            dockDirSelect.populatecombo("srt", dockDirSelect.comboTranscr, dockDirSelect.comboTranscrDir, "Transcript")
+            dockDirSelect.populatecombo("srt,ass", dockDirSelect.comboTranscr, dockDirSelect.comboTranscrDir, "Transcript")
             dockDirSelect.populatecombo("mp4,mkv", dockDirSelect.comboVideo, dockDirSelect.comboVideoDir, "Video")
 
             # find file, set file in combo
