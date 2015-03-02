@@ -29,7 +29,7 @@ import sys, pysrt, pickle, os
 #from os import listdir, path
 #from os.path    # import isfile, join
 from PySide.phonon import Phonon
-import ass, datetime
+import ass
 
 class cSubsList(QListWidget):
     def __init__(self):
@@ -78,12 +78,6 @@ class cSubsList(QListWidget):
         self.nextSubStart = i.start.ordinal
         self.nextSubEnd = i.end.ordinal
 
-        print self.subs[50].text
-        print self.subs[50].start
-        print self.subs[50].end
-        print self.subs[50].start.ordinal
-        print self.subs[50].end.ordinal
-
     def gotoLineSrt(self):
         self.item(self.currentRow).setBackground(QColor('white'))
 
@@ -96,19 +90,12 @@ class cSubsList(QListWidget):
         i = self.subs[g.row() + 1]
         self.nextSubStart = i.start.ordinal
         self.nextSubEnd = i.end.ordinal
-        # self.lcdTimer.display("11:00")
+
         lookupLine.setPlainText(self.subs[g.row()].text)
-        # lookupLine.appendPlainText(self.subs[g.row()].text)
-        #self.textEditor.append(self.subs[g.row()].text)
         LineDefs.lookup(self.currentRow)
 
 
     def loadSubsAss(self, file):
-        # with open(file, "r") as f:
-        #     contents = f.read()
-        # self.subs = ass.parse(StringIO.StringIO(contents)).events
-        # self.clear()
-
         with open(file, "r") as f:
              self.subs = ass.parse(f).events
 
@@ -130,15 +117,6 @@ class cSubsList(QListWidget):
         self.nextSubStart = i.start.total_seconds() * 1000 + i.start.microseconds
         self.nextSubEnd = i.end.total_seconds() * 1000 + i.end.microseconds
 
-        #print self.subs[30].start.total_seconds() * 1000 + self.subs[30].start.microseconds
-
-        #millis = int(round(time.time() * 1000))
-        #delta = timedelta(milliseconds=timestamp)
-        #for event in self._events:
-        #    if event.start < delta < event.end:
-        #        return event.text
-        #return ""
-
     def gotoLineAss(self):
         self.item(self.currentRow).setBackground(QColor('white'))
 
@@ -151,10 +129,9 @@ class cSubsList(QListWidget):
         i = self.subs[g.row() + 1]
         self.nextSubStart = i.start.total_seconds() * 1000 + i.start.microseconds
         self.nextSubEnd = i.end.total_seconds() * 1000 + i.end.microseconds
-        # self.lcdTimer.display("11:00")
+
         lookupLine.setPlainText(self.subs[g.row()].text.decode('utf_8'))
-        # lookupLine.appendPlainText(self.subs[g.row()].text)
-        #self.textEditor.append(self.subs[g.row()].text)
+
         LineDefs.lookup(self.currentRow)
 
     def loadSubs(self, file):
@@ -170,13 +147,11 @@ class cSubsList(QListWidget):
     def gotoLine(self):
         if self.ext == ".srt":
             self.gotoLineSrt()
-
         if self.ext == ".ass":
             self.gotoLineAss()
 
 class QPlayer(QWidget):
     def __init__(self):
-        # QWidget.__init__(self)
         super(QPlayer, self).__init__()
         self.audioOuptut = Phonon.AudioOutput(Phonon.MusicCategory, self)
         self.player = Phonon.MediaObject(self)
