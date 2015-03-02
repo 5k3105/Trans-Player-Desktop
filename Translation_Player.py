@@ -24,10 +24,10 @@ from PySide.QtGui import *
 #from yomi_base.preference_data import Preferences
 
 from yomi_base.minireader import MiniReader
-import sys, pysrt, pickle
+import sys, pysrt, pickle, os
 
-from os import listdir
-from os.path import isfile, join
+#from os import listdir, path
+#from os.path    # import isfile, join
 from PySide.phonon import Phonon
 
 class cSubsList(QListWidget):
@@ -460,7 +460,7 @@ class cDockDirSelect(QDockWidget):
                 self.comboDefsDir = dirNames[0]
 
     def populatecombo(self, filter, combo, dir, text):
-        onlyfiles = [f for f in listdir(dir) if isfile(join(dir, f))]
+        onlyfiles = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
         files = list()
         for x in onlyfiles:
             if x.split(".")[-1] in filter :
@@ -656,7 +656,16 @@ class cSession():
 
     def restore(self):
         try:
-            file = open((QtCore.QDir.currentPath() + "/session"), 'r')
+            # fix for --onefile
+            directory = os.path.dirname(sys.executable)
+            if "Python27" == os.path.basename(directory):
+                directory = QtCore.QDir.currentPath()
+            else:
+                directory = os.path.dirname(sys.executable)
+
+            file = open((directory + "/session"), 'r')
+            # print directory
+            #file = open((QtCore.QDir.currentPath() + "/session"), 'r')
             data = pickle.load(file)
             file.close()
             #print "file closed"
