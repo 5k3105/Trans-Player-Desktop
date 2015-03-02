@@ -18,15 +18,24 @@
 
 import deinflect
 import dictionary
-import os.path
+import sys, os.path
 import translate
-from PySide import QtCore
+# from PySide import QtCore
 
 def initLanguage():
     # os.path.dirname(os.path.abspath(file))
     # (QtCore.QDir.currentPath() + "/session")
     # directory = os.path.dirname(__file__)
-    directory = (QtCore.QDir.currentPath() + "/yomi_base/japanese")
+    # directory = (QtCore.QDir.currentPath() + "/yomi_base/japanese")
+    #directory = os.path.split(os.path.realpath(__file__))[0]
+
+    # fix for --onefile
+    directory = os.path.dirname(sys.executable) # + "/yomi_base/japanese"
+    if "Python27" == os.path.basename(directory):
+        directory = os.path.dirname(__file__)
+    else:
+        directory = os.path.dirname(sys.executable) + "/yomi_base/japanese"
+
     return translate.Translator(
         deinflect.Deinflector(os.path.join(directory, 'deinflect.json')),
         dictionary.Dictionary(os.path.join(directory, 'dictionary.db'))
