@@ -101,6 +101,10 @@ class cSubsList(QListWidget):
 
         self.clear()
         g = 0
+        # for i in self.subs:
+        #     if i.style not in "ED,OP,staff": #*Default": #
+        #         self.insertItem(g, i.text.decode('utf_8'))
+        #         g = g + 1
         for i in self.subs:
             self.insertItem(g, i.text.decode('utf_8'))
             g = g + 1
@@ -109,13 +113,12 @@ class cSubsList(QListWidget):
             self.item(i).setFont(QFont('Meiryo', 16))  # MS Mincho
 
         i = self.subs[0]
-
-        self.currentSubStart = i.start.total_seconds() * 1000 + i.start.microseconds
-        self.currentSubEnd = i.end.total_seconds() * 1000 + i.end.microseconds
+        self.currentSubStart = i.start.total_seconds() * 1000# + i.start.microseconds
+        self.currentSubEnd = i.end.total_seconds() * 1000# + i.end.microseconds
         self.currentRow = 0
         i = self.subs[1]
-        self.nextSubStart = i.start.total_seconds() * 1000 + i.start.microseconds
-        self.nextSubEnd = i.end.total_seconds() * 1000 + i.end.microseconds
+        self.nextSubStart = i.start.total_seconds() * 1000# + i.start.microseconds
+        self.nextSubEnd = i.end.total_seconds() * 1000# + i.end.microseconds
 
     def gotoLineAss(self):
         self.item(self.currentRow).setBackground(QColor('white'))
