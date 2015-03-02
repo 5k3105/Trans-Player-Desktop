@@ -656,16 +656,7 @@ class cSession():
 
     def restore(self):
         try:
-            # fix for --onefile
-            directory = os.path.dirname(sys.executable)
-            if "Python27" == os.path.basename(directory):
-                directory = QtCore.QDir.currentPath()
-            else:
-                directory = os.path.dirname(sys.executable)
-
-            file = open((directory + "/session"), 'r')
-            # print directory
-            #file = open((QtCore.QDir.currentPath() + "/session"), 'r')
+            file = open((QtCore.QDir.currentPath() + "/session"), 'r')
             data = pickle.load(file)
             file.close()
             #print "file closed"
