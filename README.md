@@ -3,6 +3,7 @@
 Load japanese video file and .srt transcript file (http://kitsunekko.net/).
 Interact with transcript file by looking up words with embedded yomichan dictionary.
 Save vocabulary words per transcript line.
+
 -------------------------------------------------
 Read transcript 'srt' files while watching anime and look up words in the transcript line automatically. Save and edit the defintions.
 
