@@ -123,12 +123,12 @@ class cSubsList(QListWidget):
         g = self.currentIndex()
         self.currentRow = g.row()
         i = self.subs[g.row()]
-        self.currentSubStart = i.start.total_seconds() * 1000 + i.start.microseconds
-        self.currentSubEnd = i.end.total_seconds() * 1000 + i.end.microseconds
+        self.currentSubStart = i.start.total_seconds() * 1000# + i.start.microseconds
+        self.currentSubEnd = i.end.total_seconds() * 1000# + i.end.microseconds
         qp.player.seek(self.currentSubStart)
         i = self.subs[g.row() + 1]
-        self.nextSubStart = i.start.total_seconds() * 1000 + i.start.microseconds
-        self.nextSubEnd = i.end.total_seconds() * 1000 + i.end.microseconds
+        self.nextSubStart = i.start.total_seconds() * 1000# + i.start.microseconds
+        self.nextSubEnd = i.end.total_seconds() * 1000# + i.end.microseconds
 
         lookupLine.setPlainText(self.subs[g.row()].text.decode('utf_8'))
 
@@ -263,13 +263,25 @@ class QPlayer(QWidget):
             subsList.item(subsList.currentRow).setBackground(QColor('grey'))
 
         if time > subsList.nextSubStart:
-            subsList.currentRow = subsList.currentRow + 1
-            i = subsList.subs[subsList.currentRow]
-            subsList.currentSubStart = i.start.ordinal
-            subsList.currentSubEnd = i.end.ordinal
-            n = subsList.subs[subsList.currentRow + 1]
-            subsList.nextSubStart = n.start.ordinal
-            subsList.nextSubEnd = n.end.ordinal
+
+            if subsList.ext == ".srt":
+                subsList.currentRow = subsList.currentRow + 1
+                i = subsList.subs[subsList.currentRow]
+                subsList.currentSubStart = i.start.ordinal
+                subsList.currentSubEnd = i.end.ordinal
+                n = subsList.subs[subsList.currentRow + 1]
+                subsList.nextSubStart = n.start.ordinal
+                subsList.nextSubEnd = n.end.ordinal
+
+            if subsList.ext == ".ass":
+                subsList.currentRow = subsList.currentRow + 1
+                i = subsList.subs[subsList.currentRow]
+                subsList.currentSubStart = i.start.total_seconds() * 1000# + i.start.microseconds
+                subsList.currentSubEnd = i.end.total_seconds() * 1000# + i.end.microseconds
+                n = subsList.subs[subsList.currentRow + 1]
+                subsList.nextSubStart = n.start.total_seconds() * 1000# + n.start.microseconds
+                subsList.nextSubEnd = n.end.total_seconds() * 1000# + n.end.microseconds
+                #print str(n.end.total_seconds()) + " : " + str(n.end.microseconds)
 
             subsList.item(subsList.currentRow - 1).setBackground(QColor('white'))
             subsList.item(subsList.currentRow).setBackground(QColor('red'))
@@ -597,11 +609,12 @@ class cLineDefs(QTextBrowser):
         statusbar.showMessage("Definitions File Loaded: " + self.filename)
 
     def savedefs(self):
-        file = open(self.filename, 'w')
-        data = {'TranscriptLine': self.TranscriptLine, 'Expression': self.Expression, 'Reading': self.Reading, 'Glossary': self.Glossary}
-        pickle.dump(data, file)
-        file.close()
-        statusbar.showMessage("Definitions File Saved: " + self.filename)
+        if self.filename != "":
+            file = open(self.filename, 'w')
+            data = {'TranscriptLine': self.TranscriptLine, 'Expression': self.Expression, 'Reading': self.Reading, 'Glossary': self.Glossary}
+            pickle.dump(data, file)
+            file.close()
+            statusbar.showMessage("Definitions File Saved: " + self.filename)
 
     def add(self, expression, reading, glossary):
         line = subsList.currentRow
