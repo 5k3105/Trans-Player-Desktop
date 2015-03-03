@@ -1,15 +1,12 @@
 # Trans-Player-Desktop
 
-Load japanese video file and .srt transcript file (http://kitsunekko.net/).
+Load japanese video file and 'srt' transcript file (http://kitsunekko.net/).
 Interact with transcript file by looking up words with embedded yomichan dictionary.
-Save vocabulary words per transcript line.
-
-Questions and comments: https://groups.google.com/forum/#!forum/translation-player
-
--------------------------------------------------
-Read transcript 'srt' files while watching anime and look up words in the transcript line automatically. Save and edit the defintions.
+Save and edit vocabulary words per transcript line.
 
 Download link: https://www.dropbox.com/s/sipivrhekvx30cc/translationplayer.zip?dl=0
+
+Questions and comments: https://groups.google.com/forum/#!forum/translation-player
 
 ![ScreenShot](2015-02-28_210645.png)
 
