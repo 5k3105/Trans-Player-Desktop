@@ -4,6 +4,8 @@ Load japanese video file and .srt transcript file (http://kitsunekko.net/).
 Interact with transcript file by looking up words with embedded yomichan dictionary.
 Save vocabulary words per transcript line.
 
+Questions and comments: https://groups.google.com/forum/#!forum/translation-player
+
 -------------------------------------------------
 Read transcript 'srt' files while watching anime and look up words in the transcript line automatically. Save and edit the defintions.
 
@@ -20,6 +22,8 @@ When you double click a Transcript line it will appear in the box 'Lookup Line'.
 When looking a word up in the dictionary, click the icon next to the correct definition to save it into the Definitions panel.
 
 Definitions are saved per transcript line. When the line is selected through mouse click or video play, the saved definitions for that line appear in the Definitions panel.
+
+Instructions:
 
 First step is to select the video file folder. There are three combo boxes with little '+' buttons. The first box selects the video, the second box selects the transcript, the third selects definitions folder.
 
