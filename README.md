@@ -11,8 +11,6 @@ Read transcript 'srt' files while watching anime and look up words in the transc
 
 Download link: https://www.dropbox.com/s/sipivrhekvx30cc/translationplayer.zip?dl=0
 
-It's still beta but it does the basics which is: play the video and follow the transcript.
-
 ![ScreenShot](2015-02-28_210645.png)
 
 You can jump around the video by clicking on a line in the Transcript list (center). While the video is playing, the current transcript line is highlighted, following along with the video.
