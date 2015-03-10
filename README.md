@@ -9,8 +9,7 @@ Download link: https://www.dropbox.com/s/sipivrhekvx30cc/translationplayer.zip?d
 Questions and comments: https://groups.google.com/forum/#!forum/translation-player
 
 Japanese transcript resources:
-
-Anime: http://kitsunekko.net/ 
+Anime: http://kitsunekko.net/
 Drama: http://jpsubbers.x10.mx/Japanese-Subtitles/
 
 ![ScreenShot](2015-02-28_210645.png)
