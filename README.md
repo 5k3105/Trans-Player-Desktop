@@ -1,6 +1,6 @@
 # Trans-Player-Desktop
 
-Load japanese video file and 'srt' transcript file (http://kitsunekko.net/).
+Load japanese video file and 'srt' transcript file (Anime: http://kitsunekko.net/ Drama: http://jpsubbers.x10.mx/Japanese-Subtitles/).
 Interact with transcript file by looking up words with embedded yomichan dictionary.
 Save and edit vocabulary words per transcript line.
 
