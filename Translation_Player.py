@@ -179,6 +179,12 @@ class QPlayer(QWidget):
         self.setupConnections()
         self.init = True # used to test before loading file when PLAY is pushed
 
+        # load a subtitle test
+        #self.mediaobject = Phonon.MediaObject()
+        #self.mediacontroller = Phonon.MediaController(self.mediaobject)
+
+        #fn = "G:\Documents and Settings\\5k3105\Desktop\\anime\sidonia\\"
+        #self.player.setCurrentSubtitle(fn + "timed for [Underwater] release Shidonia_No_Kishi_001.srt")
 
     def buildGUI(self):
 
@@ -682,8 +688,8 @@ class editDialog(QDialog):
 
         btnOK = QPushButton()
         btnCancel = QPushButton()
-        btnOK.setText("Save Defintion")
-        btnCancel.setText("Cancel Edit")
+        btnOK.setText("Save")
+        btnCancel.setText("Cancel")
         vlayout.addWidget(btnOK)
         vlayout.addWidget(btnCancel)
         self.setLayout(vlayout)
@@ -757,6 +763,9 @@ class cSession():
 if __name__ == "__main__":
     qapp = QApplication(sys.argv)
     w = QMainWindow()
+
+    #QStyle.styleHint(QStyle.Plas)
+
     w.setWindowTitle("Trans-Player-Desktop v0.3")
     statusbar = QStatusBar(w)
     w.setStatusBar(statusbar)

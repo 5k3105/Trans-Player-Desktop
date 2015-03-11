@@ -29,16 +29,16 @@ class DialogPreferences(QtGui.QDialog, gen.preferences_ui.Ui_DialogPreferences):
         self.accepted.connect(self.onAccept)
         self.buttonColorBg.clicked.connect(self.onButtonColorBgClicked)
         self.buttonColorFg.clicked.connect(self.onButtonColorFgClicked)
-        self.comboBoxDeck.currentIndexChanged.connect(self.onDeckChanged)
-        self.comboBoxModel.currentIndexChanged.connect(self.onModelChanged)
+        #self.comboBoxDeck.currentIndexChanged.connect(self.onDeckChanged)
+        #self.comboBoxModel.currentIndexChanged.connect(self.onModelChanged)
         self.comboFontFamily.currentFontChanged.connect(self.onFontFamilyChanged)
-        self.radioButtonKanji.toggled.connect(self.onProfileChanged)
-        self.radioButtonVocab.toggled.connect(self.onProfileChanged)
+        #self.radioButtonKanji.toggled.connect(self.onProfileChanged)
+        #self.radioButtonVocab.toggled.connect(self.onProfileChanged)
         self.spinFontSize.valueChanged.connect(self.onFontSizeChanged)
-        self.tableFields.itemChanged.connect(self.onFieldsChanged)
+        #self.tableFields.itemChanged.connect(self.onFieldsChanged)
 
         self.preferences = preferences
-        self.anki = anki
+        #self.anki = anki
 
         self.dataToDialog()
 
