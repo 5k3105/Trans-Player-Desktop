@@ -1,2 +1,6 @@
 *.pyc
+
 yomichan.zip
+
+session
+.idea
