@@ -10,13 +10,14 @@ Questions and comments: https://groups.google.com/forum/#!forum/translation-play
 
 Japanese transcript resources:
 Anime: http://kitsunekko.net/
+
 Drama: http://jpsubbers.x10.mx/Japanese-Subtitles/
 
 ![ScreenShot](2015-02-28_210645.png)
 
 You can jump around the video by clicking on a line in the Transcript list (center). While the video is playing, the current transcript line is highlighted, following along with the video.
 
-When you double click a Transcript line it will appear in the box 'Lookup Line'. From there you can mouse over the words while holding down SHIFT and it will look them up. This feature is forked from the Yomichan project, an Anki plugin. 
+When you double click a Transcript line it will appear in the box 'Lookup Line'. From there you can mouse over the words while holding down SHIFT and it will look them up. This feature is forked from the Yomichan project (https://github.com/FooSoft/yomichan), an Anki plugin. 
 
 When looking a word up in the dictionary, click the icon next to the correct definition to save it into the Definitions panel.
 
