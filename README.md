@@ -14,7 +14,7 @@ Anime: http://kitsunekko.net/
 
 Drama: http://jpsubbers.x10.mx/Japanese-Subtitles/
 
-![ScreenShot](2015-02-28_210645.png)
+![ScreenShot](2015-03-16_235702.png)
 
 You can jump around the video by clicking on a line in the Transcript list (center). While the video is playing, the current transcript line is highlighted, following along with the video.
 
