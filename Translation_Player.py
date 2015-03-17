@@ -762,9 +762,8 @@ class cSession():
 
 if __name__ == "__main__":
     qapp = QApplication(sys.argv)
+    qapp.setStyle("cleanlooks")
     w = QMainWindow()
-
-    #QStyle.styleHint(QStyle.Plas)
 
     w.setWindowTitle("Trans-Player-Desktop v0.3")
     statusbar = QStatusBar(w)

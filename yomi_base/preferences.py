@@ -17,20 +17,16 @@
 
 
 from PySide import QtGui, QtCore
-import copy
+#import copy
 #import gen.preferences_ui
 
 
-class DialogPreferences(QtGui.QDialog, gen.preferences_ui.Ui_DialogPreferences):
-    def __init__(self, parent, preferences, anki):
+class DialogPreferences(QtGui.QDialog): # , gen.preferences_ui.Ui_DialogPreferences
+    def __init__(self, parent, preferences): # , anki
         QtGui.QDialog.__init__(self, parent)
+
         self.setupUi(self)
-
-
-
         self.preferences = preferences
-        #self.anki = anki
-
         self.dataToDialog()
 
 
@@ -217,65 +213,61 @@ class DialogPreferences(QtGui.QDialog, gen.preferences_ui.Ui_DialogPreferences):
 
     def setupUI(self):
 
+        vlayout = QtGui.QVBoxLayout()
+        hlayout = QtCore.QHBoxLayout()
+
         # combo set action
         self.comboBoxAction = QtGui.QComboBox()
+        self.comboBoxAction.addItems("Transcript List","Transcript Line Lookup",
+                                     "Vocabulary:Expression", "Vocabulary:Reading", "Vocabulary:Glossary",
+                                     "Definition:Expression", "Definition:Reading", "Definition:Glossary")
+        hlayout.addWidget(self.comboBoxAction)
 
         # combo set font
         self.comboFontFamily = QtGui.QFontComboBox()
         self.comboFontFamily.currentFontChanged.connect(self.onFontFamilyChanged)
+        hlayout.addWidget(self.comboFontFamily)
 
-
-        # font font-size
+        # spin font-size
         self.spinFontSize = QtGui.QSpinBox()
         self.spinFontSize.valueChanged.connect(self.onFontSizeChanged)
+        hlayout.addWidget(self.spinFontSize)
 
         # button fg bg
         self.buttonColorFg = QtGui.QPushButton()
         self.buttonColorBg = QtGui.QPushButton()
         self.buttonColorBg.clicked.connect(self.onButtonColorBgClicked)
         self.buttonColorFg.clicked.connect(self.onButtonColorFgClicked)
+        hlayout.addWidget(self.buttonColorFg)
+        hlayout.addWidget(self.buttonColorBg)
 
         # text area
+        self.textSample = QtGui.QTextEdit()
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.textSample.setFont(font)
+        text = "34他リニ遣熱南極えざ真杉を愛輪すぜて叡統づ棋世とえんけ方世ルみずど非実あ旧加ヲチ殖郵ムハミリ騒取エフヤマ治最フせスけ継乏咋ぞ。遺んぞこり対乗アオツタ志案ク欠慮ニ応米ホヌカヤ延必ぽさざッ再数ト転主ワマタツ復錦ヤミエシ事呼レせ気価ケ事出老シ景育沖ちだひゃ。7蓮エメ面村へ童占ナ緒経認断イッさぴ朝学2車付消ス里1差ルで明女こ職子映しな高価ょゆ群準くはふ。\
+                間タウ府誕クヒヱソ応避社ムニキ要直克えむ輸続ノ氏行ワ理見ふをゆぶ評始オルキロ応活マス定断キノ応立ど巻3批テ達定の提演ラけばー要疑績べとね域演未誇もじげく。注げ性崎つ稿7小おすフへ吉乱月トじ期7育左スコテエ症高サヲ悪相35詐はべッぽ会続ねょ情梨フ総岡レのるひ速策ヘ制功ノ吉愛ぐ。\
+                一ち表分ぼでぜざ社放う社無攻タリロワ治志ミイカ惑請タ秋先治よド正小セ棋員ルかめぐ戦76格ゅに格金ラ周心リ引際録て。専チクヱナ任台キミナ村後2特ぼ尚90検ツヱ表軽ロムタワ津疾校とで生愛山んス術衛メミムナ真物金ゃざよ変申ロモ梅政挑伏涙煮ぎ。米せ受司相後ど万使ほざめ発2都ツ運月スト政技ぱだふ苦重ヌニ央合でまぜル断掲ユ筋勝クづ土替あ間担株伐唄ゆほて。\
+                最よとわ階市カテ周那ンゅ第象ヤオ展面とばラせ表抜おレつ廃刊隆キアヌ稿8月なてルト誓悲チネサ権国異びか白言清リ果5傘忌昆め。辺ふをみ断申たゆがょ的博むぱお全超違ツト省点イモ挙朝ッリゅれ木品づよぐ対上朝ヒヘマ望子ルみぶラ回面ツマ午奨貯鏡トレ。9合区べやぎ青変日ヲヘム防3決サウ小田ミ東君れぐ着80一フヌ本権つっ理決そイ技線殺ヤニル払止ぐぶば平何平をそらば。\
+                内回ょルを会寄ヤヘ弘化ぱい息載ステヒク青紙ぜぱのど載問ア円問刊エア護条ワテラウ特一へ誇活ぽいも辞生サク使手ッ全横がよ午何9仰巣か。飯ニ乾台神サ道意カスヲワ野今ルあさ敏1報げらゆや第34旅属到準39同ウ属成連う押読マ踊問禁メネミタ効入制ドッむい棋村ナ改薬セヨキソ巡面るこもけ。""
+        self.textSample.setText(text)
+        vlayout.addWidget(self.textSample)
 
         # button ok cancel
+        hlayout2 = QtGui.QHBoxLayout()
+
         buttonOK = QtGui.QPushButton()
         buttonCancel = QtGui.QPushButton()
         buttonOK.setText("Save")
         buttonCancel.setText("Cancel")
-        vlayout.addWidget(buttonOK)
-        vlayout.addWidget(buttonCancel)
-        self.setLayout(vlayout)
+        hlayout2.addWidget(buttonOK)
+        hlayout2.addWidget(buttonCancel)
+        self.setLayout(hlayout2)
         buttonOK.clicked.connect(self.onAccept)
-        #self.accepted.connect(self.onAccept)
         buttonCancel.clicked.connect(self.buttonCancelClicked)
-
-
 
         #self.comboBoxDeck.currentIndexChanged.connect(self.onDeckChanged)
 
-
-
-
-        self.texteditor = QtGui.QTextEdit()
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        self.texteditor.setFont(font)
-        self.texteditor.setText(text)
-        vlayout = QtGui.QVBoxLayout()
-        vlayout.addWidget(self.texteditor)
-
-
-
         self.setWindowTitle("Preferences")
         self.show()
-
-#    def btnOKclicked(self):
-#        LineDefs.Glossary[self.index] = self.texteditor.toPlainText()
-#        LineDefs.lookup(subsList.currentRow)
-#        self.close()
-
-#    def btnCancelclicked(self):
-#        self.close()
-
-
-
