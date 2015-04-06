@@ -4,9 +4,11 @@ Load japanese video file and 'srt' transcript file.
 Interact with transcript file by looking up words with embedded yomichan dictionary.
 Save and edit vocabulary words per transcript line.
 
-Download link: https://www.dropbox.com/s/j5kg6q7b1tf1xg3/03172015.zip?dl=0
+Newest Version: https://www.dropbox.com/s/ft6148x2bsayqqj/Yakusu_040615.zip
 
-Older version: https://www.dropbox.com/s/sipivrhekvx30cc/translationplayer.zip?dl=0
+Last Stable: https://www.dropbox.com/s/j5kg6q7b1tf1xg3/03172015.zip
+
+Older version: https://www.dropbox.com/s/sipivrhekvx30cc/translationplayer.zip
 
 Questions and comments: https://groups.google.com/forum/#!forum/translation-player
 
