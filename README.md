@@ -4,7 +4,9 @@ Load japanese video file and 'srt' transcript file.
 Interact with transcript file by looking up words with embedded yomichan dictionary.
 Save and edit vocabulary words per transcript line.
 
-Download link: https://www.dropbox.com/s/sipivrhekvx30cc/translationplayer.zip?dl=0
+Download link: https://www.dropbox.com/s/j5kg6q7b1tf1xg3/03172015.zip?dl=0
+
+Older version: https://www.dropbox.com/s/sipivrhekvx30cc/translationplayer.zip?dl=0
 
 Questions and comments: https://groups.google.com/forum/#!forum/translation-player
 
@@ -14,7 +16,7 @@ Anime: http://kitsunekko.net/
 
 Drama: http://jpsubbers.x10.mx/Japanese-Subtitles/
 
-![ScreenShot](2015-02-28_210645.png)
+![ScreenShot](2015-03-16_235702.png)
 
 You can jump around the video by clicking on a line in the Transcript list (center). While the video is playing, the current transcript line is highlighted, following along with the video.
 
