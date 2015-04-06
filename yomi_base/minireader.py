@@ -1,17 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from PySide import QtGui, QtCore    #PyQt4
-#import about
-import constants
-#import gen.reader_ui
+from PySide import QtGui, QtCore
 import japanese.util
-import os
-#import preferences
 import reader_util
-import tarfile
-import update
-#import Translation_Player
-
 
 class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_MainWindowReader
     class State:
@@ -24,22 +15,22 @@ class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_Ma
             self.vocabDefs = list()
 
 
-    def __init__(self, dockKanji, dockVocab, textVocabDefs, textKanjiDefs, LineDefs):
+    def __init__(self, dockKanji, dockVocab, textVocabDefs, textKanjiDefs, LineDefs, settings):
         super(MiniReader, self).__init__()
 
         self.dockKanji = dockKanji
         self.dockVocab = dockVocab
         self.textVocabDefs = textVocabDefs
         self.textKanjiDefs = textKanjiDefs
-
         self.LineDefs = LineDefs
 
         self.setMouseTracking(True)
         self.setReadOnly(True)
-
+        #self.textContent()
         font = QtGui.QFont()
         font.setPointSize(16)
         self.setFont(font)
+
 
         #self.textContent.setObjectName(_fromUtf8("textContent"))
         #self.verticalLayout_4.addWidget(self.textContent)
@@ -86,8 +77,16 @@ class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_Ma
     #     self.comboTags.addItems(self.preferences['tags'])
     #     self.applyPreferencesContent()
 
+    def settingsupdate(self, ft, fs, cfg, cbg):
+        palette = self.palette()
+        palette.setColor(QtGui.QPalette.Base, QtGui.QColor(cbg))
+        palette.setColor(QtGui.QPalette.Text, QtGui.QColor(cfg))
+        self.setPalette(palette)
 
-
+        font = QtGui.QFont()
+        font.setPointSize(fs)
+        font.setFamily(ft)
+        self.setFont(font)
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Shift:
@@ -221,9 +220,6 @@ class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_Ma
             else:
                 result = u'{expression} {glossary}\n'.format(**definition)
 
-
-            #self.LineDefs.append(result)  # REMOVE #
-
             self.LineDefs.Result = result
             expression = u'{expression}'.format(**definition)
             reading =  u'{reading}'.format(**definition)
@@ -237,10 +233,10 @@ class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_Ma
 
         definition = self.state.kanjiDefs[index]
         if command == 'addKanji':
-            markup = reader_util.markupKanji(definition)
+            markup = self.dockVocab.markupKanji(definition)
             self.ankiAddFact('kanji', markup)
         elif command == 'copyKanjiDef':
-            reader_util.copyKanjiDef(definition)
+            self.dockVocab.copyKanjiDef(definition)
 
             self.LineDefs.append(u'{character}\t{kunyomi}\t{onyomi}\t{glossary}'.format(**definition))
 
@@ -296,7 +292,7 @@ class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_Ma
         self.setTextCursor(cursor)
 
     def updateVocabDefs(self):
-        html = reader_util.buildVocabDefs(
+        html = self.dockVocab.buildVocabDefs(
             self.state.vocabDefs[:20], #:self.preferences['maxResults']
             None #self.ankiIsFactValid
         )
@@ -304,7 +300,7 @@ class MiniReader(QtGui.QPlainTextEdit): # QtGui.QMainWindow, gen.reader_ui.Ui_Ma
 
 
     def updateKanjiDefs(self):
-        html = reader_util.buildKanjiDefs(
+        html = self.dockVocab.buildKanjiDefs(
             self.state.kanjiDefs[:20], #self.state.kanjiDefs[:self.preferences['maxRsults']],
             None #self.ankiIsFactValid
         )

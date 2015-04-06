@@ -148,12 +148,21 @@ def buildDefHeader():
     palette = QtGui.QApplication.palette()
     toolTipBg = palette.color(QtGui.QPalette.Window).name()
     toolTipFg = palette.color(QtGui.QPalette.WindowText).name()
-
+    # span.expression {{ font-size: 15pt; }}
     return u"""
         <html><head><style>
-        body {{ background-color: {0}; color: {1}; font-size: 11pt; }}
-        span.expression {{ font-size: 15pt; }}
-        </style></head><body>""".format(toolTipBg, toolTipFg)
+        body {{ background-color: {0} }}
+        span.expression {{ font-size: {1}; font-family: {2}; color: {3} }}
+        span.reading {{ font-size: {5}; font-family: {6}; color: {7} }}
+        span.glossary {{ font-size: {8}; font-family: {9}; color: {10} }}
+        </style></head><body>""".format(toolTipBg, toolTipFg, 15, 'serif', 'green', 12, 'serif', 'blue', 10, 'serif','white')
+
+            # <html><head><style>
+            # body {{ background-color: {0} }}
+            # span.expression {{ font-size: {1}px; font-family: {2}; color: {3} }}
+            # span.reading {{ font-size: {4}px; font-family: {5}; color: {6} }}
+            # span.glossary {{ font-size: {7}px; font-family: {8}; color: {9} }}
+            # </style></head><body>""".format(self.bg, self.efs, self.eft, self.efg, self.rfs, self.rft, self.rfg, self.gfs, self.gft, self.gfg) + html + "</body></html>"
 
 
 def buildDefFooter():
@@ -191,7 +200,7 @@ def buildVocabDef(definition, index, query):
         <span class = "glossary">{3}<br/></span>
         {4}
         <br clear = "all"/>""".format(links, definition['expression'], reading, definition['glossary'], rules)
-
+    #print html
     return html
 
 

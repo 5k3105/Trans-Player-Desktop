@@ -16,25 +16,37 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from PySide import QtCore  # PyQt4
+import yomi_base.reader_util
+import sys, pysrt, pickle, os, ass
+from PySide import QtCore
 from PySide.QtGui import *
-
-#from yomi_base import japanese
-#from yomi_base.preference_data import Preferences
-
+from yomi_base.settings import cSettings
 from yomi_base.minireader import MiniReader
-import sys, pysrt, pickle, os
-
-#from os import listdir, path
-#from os.path    # import isfile, join
 from PySide.phonon import Phonon
-import ass
 
 class cSubsList(QListWidget):
-    def __init__(self):
+    def __init__(self, settings):
         super(cSubsList, self).__init__()
         self.ext = ""
+        self.bgColor = "white" #QColor('white')
+
+    def settingsupdate(self, ft, fs, cfg, cbg):
+        # palette = self.palette()
+        # palette.setColor(QPalette.Base, QColor(cbg))
+        # palette.setColor(QPalette.Text, QColor(cfg))
+        # self.setPalette(palette)
+        self.bgColor = cbg
+
+        font = QFont()
+        font.setPointSize(fs)
+        font.setFamily(ft)
+        #self.setFont(font)
+
+        for i in xrange(self.count()):
+            self.item(i).setFont(font)
+            self.item(i).setForeground(QColor(cfg))
+            self.item(i).setBackground(QColor(cbg))
+
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Space:
@@ -79,7 +91,7 @@ class cSubsList(QListWidget):
         self.nextSubEnd = i.end.ordinal
 
     def gotoLineSrt(self):
-        self.item(self.currentRow).setBackground(QColor('white'))
+        self.item(self.currentRow).setBackground(QColor(self.bgColor))#QColor('white'))
 
         g = self.currentIndex()
         self.currentRow = g.row()
@@ -121,7 +133,7 @@ class cSubsList(QListWidget):
         self.nextSubEnd = i.end.total_seconds() * 1000# + i.end.microseconds
 
     def gotoLineAss(self):
-        self.item(self.currentRow).setBackground(QColor('white'))
+        self.item(self.currentRow).setBackground(self.bgColor)#QColor('white'))
 
         g = self.currentIndex()
         self.currentRow = g.row()
@@ -154,18 +166,13 @@ class cSubsList(QListWidget):
             self.gotoLineAss()
 
 class QPlayer(QWidget):
-    def __init__(self):
+    def __init__(self, settings):
         super(QPlayer, self).__init__()
         self.audioOuptut = Phonon.AudioOutput(Phonon.MusicCategory, self)
         self.player = Phonon.MediaObject(self)
         Phonon.createPath(self.player, self.audioOuptut)
 
-        # subtitles not working..
-        #self.mController = Phonon.MediaController(self.player)
-        #self.mController.setAutoplayTitles(True)
-
         self.videoWidget = cVideoWidget()
-        #self.videoWidget = Phonon.VideoWidget(self)
         Phonon.createPath(self.player, self.videoWidget)
 
         self.player.setTickInterval(500)  #1000
@@ -188,16 +195,9 @@ class QPlayer(QWidget):
 
     def buildGUI(self):
 
-        # self.fileLabel = QLabel("File")
-        # self.fileEdit = QLineEdit()
-        #self.fileLabel.setBuddy(self.fileEdit)
         self.fileEdit = ""
         self.lcdTimer = QLCDNumber()
         self.lcdTimer.display("00:00")
-        #self.lcdTimer.segmentStyle(QLCDNumber.Filled)
-
-        #self.browseButton = QPushButton("Browse")
-        #self.browseButton.setIcon(QIcon(":/images/folder-music.png"))
 
         self.playButton = QPushButton("Play")
         self.playButton.setIcon(QIcon(":/images/play.png"))
@@ -209,13 +209,6 @@ class QPlayer(QWidget):
         self.stopButton = QPushButton("Stop")
         self.stopButton.setIcon(QIcon(":/images/stop.png"))
 
-        #self.fullScreenButton = QPushButton("Full Screen")  ######
-
-        #upperLayout = QHBoxLayout()
-        #upperLayout.addWidget(self.fileLabel)
-        #upperLayout.addWidget(self.fileEdit)
-        #upperLayout.addWidget(self.browseButton)
-
         midLayout = QHBoxLayout()
         midLayout.addWidget(self.seekSlider)
         midLayout.addWidget(self.lcdTimer)
@@ -224,11 +217,9 @@ class QPlayer(QWidget):
         lowerLayout.addWidget(self.playButton)
         lowerLayout.addWidget(self.pauseButton)
         lowerLayout.addWidget(self.stopButton)
-        #lowerLayout.addWidget(self.fullScreenButton)  #########
         lowerLayout.addWidget(self.volumeSlider)
 
         layout = QVBoxLayout()
-        #layout.addLayout(upperLayout)
         layout.addWidget(self.videoWidget)
         layout.addLayout(midLayout)
         layout.addLayout(lowerLayout)
@@ -240,21 +231,15 @@ class QPlayer(QWidget):
 
 
     def setupConnections(self):
-        # self.browseButton.clicked.connect(self.browseClicked)
         self.playButton.clicked.connect(self.playClicked)
         self.pauseButton.clicked.connect(self.pauseClicked)
         self.stopButton.clicked.connect(self.stopClicked)
-        # self.fileEdit.textChanged.connect(self.checkFileName)
-        #self.fullScreenButton.clicked.connect(self.fullScreenClicked)
+
         #self.videoWidget.keyPressed.connect(self.fullScreenButton)
         #self.mController.availableSubtitlesChanged.connect(self.subsChanged)
         #self.videoWidget.stateChanged.connect(self.vidStateChanged)
 
-
-    def subsChanged(self):
-        pass
-
-    def tick(self, time):  # transcript list hilight following
+    def tick(self, time):  # transcript list hi-lite following
         displayTime = QtCore.QTime(0, (time / 60000) % 60, (time / 1000) % 60)
         self.lcdTimer.display(displayTime.toString('mm:ss'))
         """
@@ -320,12 +305,12 @@ class QPlayer(QWidget):
         self.player.stop()
         self.lcdTimer.display("00:00")
 
-    def browseClicked(self):
+    def browseClicked(self): #$
         f, _ = QFileDialog.getOpenFileName(self)
         if f != "":
             self.fileEdit.setText(f)
 
-    def checkFileName(self, s):
+    def checkFileName(self, s): #$
         if s != "":
             self.playButton.setEnabled(True)
         else:
@@ -369,7 +354,6 @@ class cVideoWidget(Phonon.VideoWidget):
             time -= 5000
             qp.player.seek(time)
 
-
 class cDockKanji(QDockWidget):
     def __init__(self):
         super(cDockKanji, self).__init__()
@@ -396,29 +380,153 @@ class cDockKanji(QDockWidget):
         self.setWindowTitle("Kanji")
 
 class cDockVocab(QDockWidget):
-    def __init__(self):
+    def __init__(self, settings):
         super(cDockVocab, self).__init__()
 
-        self.dockWidgetContents = QWidget()
-        self.verticalLayout = QVBoxLayout(self.dockWidgetContents)
-        self.textVocabDefs = QTextBrowser(self.dockWidgetContents)
+        #self.dockWidgetContents = QWidget()
+        #self.verticalLayout = QVBoxLayout(self.dockWidgetContents)
+        self.textVocabDefs = QTextBrowser()#self.dockWidgetContents)
         self.textVocabDefs.setAcceptDrops(False)
         self.textVocabDefs.setOpenLinks(False)
-        self.verticalLayout.addWidget(self.textVocabDefs)
+        self.setWidget(self.textVocabDefs)
+        #self.verticalLayout.addWidget(self.textVocabDefs)
 
-        self.horizontalLayout = QHBoxLayout()
-        self.label = QLabel(self.dockWidgetContents)
+        # self.horizontalLayout = QHBoxLayout()
+        # self.label = QLabel(self.dockWidgetContents)
+        # self.horizontalLayout.addWidget(self.label)
+        # self.textVocabSearch = QLineEdit(self.dockWidgetContents)
+        # self.horizontalLayout.addWidget(self.textVocabSearch)
+        # self.verticalLayout.addLayout(self.horizontalLayout)
 
-        self.horizontalLayout.addWidget(self.label)
-        self.textVocabSearch = QLineEdit(self.dockWidgetContents)
-
-        self.horizontalLayout.addWidget(self.textVocabSearch)
-        self.verticalLayout.addLayout(self.horizontalLayout)
-        self.setWidget(self.dockWidgetContents)
+        #self.setWidget(self.dockWidgetContents)
         self.setWindowTitle("Vocabulary")
+        self.bg = "black"
+        self.eft = 12
+        self.efs = "black"
+        self.efg = "black"
+        self.rft = "black"
+        self.rfs = 12
+        self.rfg = "black"
+        self.gft = "black"
+        self.gfs = 12
+        self.gfg = "black"
+        self.elh = 0
+        self.rlh = 0
+        self.glh = 0
+
+    def settingsupdateEx(self, eft, efs, efg, bg, elh):
+        self.eft = eft
+        self.efs = efs
+        self.efg = efg
+        self.bg = bg
+        self.elh = elh
+        lookupLine.updateVocabDefs()
+
+    def settingsupdateRe(self, rft, rfs, rfg, bg, rlh):
+        self.rft = rft
+        self.rfs = rfs
+        self.rfg = rfg
+        self.bg = bg
+        self.rlh = rlh
+        lookupLine.updateVocabDefs()
+
+    def settingsupdateGl(self, gft, gfs, gfg, bg, glh):
+        self.gft = gft
+        self.gfs = gfs
+        self.gfg = gfg
+        self.bg = bg
+        self.glh = glh
+        lookupLine.updateVocabDefs()
+
+    def buildDefHeader(self):
+
+        return u"""
+                <html><head><style>
+                body {{ background-color: {0} }}
+                span.expression {{ font-size: {1}px; font-family: '{2}'; color: {3}; line-height: {10}px }}
+                span.reading {{ font-size: {4}px; font-family: '{5}'; color: {6}; line-height: {11}px }}
+                span.glossary {{ font-size: {7}px; font-family: '{8}'; color: {9}; line-height: {12}px }}
+                </style></head><body>""".format(self.bg, self.efs, self.eft, self.efg, self.rfs, self.rft, self.rfg, self.gfs, self.gft, self.gfg, self.elh, self.rlh, self.glh) #+ html + "</body></html>"
+
+    def buildDefFooter(self):
+        return '</body></html>'
+
+
+    def buildEmpty(self):
+        return u"""
+            <p>No definitions to display.</p>
+            <p>Mouse over text with the <em>middle mouse button</em> or <em>shift key</em> pressed to search.</p>
+            <p>You can also also input terms in the search box below."""
+
+
+    def buildVocabDef(self, definition, index, query):
+        reading = unicode()
+        if definition['reading']:
+            reading = u'<span class = "reading">[{0}]<br/></span>'.format(definition['reading'])
+
+        rules = unicode()
+        if len(definition['rules']) > 0:
+            rules = ' &lt; '.join(definition['rules'])
+            rules = '<span class = "rules">({0})<br/></span>'.format(rules)
+
+        links = '<a href = "copyVocabDef:{0}"><img src = "img/icon_add_expression.png" align = "right"/></a>'.format(index)
+        if query is not None:
+            if query('vocab', yomi_base.reader_util.markupVocabExp(definition)):
+                links += '<a href = "addVocabExp:{0}"><img src = "://img/img/icon_add_expression.png" align = "right"/></a>'.format(index)
+            if query('vocab', yomi_base.reader_util.markupVocabReading(definition)):
+                links += '<a href = "addVocabReading:{0}"><img src = "://img/img/icon_add_reading.png" align = "right"/></a>'.format(index)
+
+        html = u"""
+            <span class = "links">{0}</span>
+            <span class = "expression">{1}<br/></span>
+            {2}
+            <span class = "glossary">{3}<br/></span>
+            {4}
+            <br clear = "all"/>""".format(links, definition['expression'], reading, definition['glossary'], rules)
+        #print html
+        return html
+
+
+    def buildVocabDefs(self, definitions, query):
+        html = self.buildDefHeader()
+        if len(definitions) > 0:
+            for i, definition in enumerate(definitions):
+                html += self.buildVocabDef(definition, i, query)
+        else:
+            html += self.buildEmpty()
+
+        return html + self.buildDefFooter()
+
+
+    def buildKanjiDef(self, definition, index, query):
+        links = '<a href = "copyKanjiDef:{0}"><img src = "://img/img/icon_copy_definition.png" align = "right"/></a>'.format(index)
+        if query is not None and query('kanji', yomi_base.reader_util.markupKanji(definition)):
+            links += '<a href = "addKanji:{0}"><img src = "://img/img/icon_add_expression.png" align = "right"/></a>'.format(index)
+
+        readings = ', '.join([definition['kunyomi'], definition['onyomi']])
+        html = u"""
+            <span class = "links">{0}</span>
+            <span class = "expression">{1}<br/></span>
+            <span class = "reading">[{2}]<br/></span>
+            <span class = "glossary">{3}<br/></span>
+            <br clear = "all"/>""".format(links, definition['character'], readings, definition['glossary'])
+
+        return html
+
+
+    def buildKanjiDefs(self, definitions, query):
+        html = self.buildDefHeader()
+
+        if len(definitions) > 0:
+            for i, definition in enumerate(definitions):
+                html += self.buildKanjiDef(definition, i, query)
+        else:
+            html += self.buildEmpty()
+
+        return html + self.buildDefFooter()
 
 class cDockDirSelect(QDockWidget):
-    def __init__(self):
+    def __init__(self, session):
         super(cDockDirSelect, self).__init__()
 
         self.dockWidgetContents = QWidget()
@@ -454,7 +562,7 @@ class cDockDirSelect(QDockWidget):
         self.btnTranscr.setMaximumWidth(35)
         self.btnDefs.setMaximumWidth(35)
 
-        # load save create
+        # load save create ... SETTINGS
         #self.btnLoad = QPushButton(self.dockWidgetContents)
         #self.btnLoad.setText("Load")
         #self.horizontalLayout.addWidget(self.btnLoad)
@@ -473,7 +581,13 @@ class cDockDirSelect(QDockWidget):
         self.btnCreate.clicked.connect(LineDefs.createdefs)
         self.btnCreate.setDisabled(True)
 
-        #self.btnLoad.setMaximumWidth(90)
+        self.btnSettings = QPushButton(self.dockWidgetContents)
+        self.btnSettings.setText("Settings")
+        self.horizontalLayout.addWidget(self.btnSettings)
+        self.btnSettings.clicked.connect(self.settingsPanel)
+        self.btnSettings.setDisabled(False)
+
+        self.btnSettings.setMaximumWidth(90)
         self.btnSave.setMaximumWidth(90)
         self.btnCreate.setMaximumWidth(90)
 
@@ -481,14 +595,38 @@ class cDockDirSelect(QDockWidget):
         self.setWindowTitle("Directory Select")
         self.setMinimumHeight(50)
 
-        self.comboVideoDir = ""
+        self.comboVideoDir = session.VideoDir
         self.comboVideo.currentIndexChanged.connect(self.setvideofile)
 
-        self.comboTranscrDir = ""
+        self.comboTranscrDir = session.TranscrDir
         self.comboTranscr.currentIndexChanged.connect(self.settranscrfile)
 
-        self.comboDefsDir = ""
+        self.comboDefsDir = session.DefsDir
         self.comboDefs.currentIndexChanged.connect(self.setdefsfile)
+
+        if self.comboDefsDir <> "":
+            self.populatecombo("tdef", self.comboDefs, self.comboDefsDir, "Definitions")
+        if self.comboTranscrDir <> "":
+            self.populatecombo("srt,ass", self.comboTranscr, self.comboTranscrDir, "Transcript")
+        if self.comboVideoDir <> "":
+            self.populatecombo("mp4,mkv", self.comboVideo, self.comboVideoDir, "Video")
+
+        self.comboDefs.setCurrentIndex(self.comboDefs.findText(session.DefsFile))
+        self.comboTranscr.setCurrentIndex(self.comboTranscr.findText(session.TranscrFile))
+        self.comboVideo.setCurrentIndex(self.comboVideo.findText(session.VideoFile))
+
+        self.settranscrfile()
+        self.setvideofile()
+        self.setdefsfile()
+
+
+    def settingsPanel(self):
+        if dockSettings.isVisible():
+            dockSettings.setVisible(False)
+        else:
+            dockSettings.setVisible(True)
+            #w.tabifyDockWidget(dockSettings, dockVideo)
+            # setfocus
 
     def setvideofile(self):
         if self.comboVideo.currentText() != "":
@@ -553,7 +691,7 @@ class cDockDirSelect(QDockWidget):
         statusbar.showMessage(text + " Folder set to: " + dir)
 
 class cLineDefs(QTextBrowser):
-    def __init__(self):
+    def __init__(self, settings):
         super(cLineDefs, self).__init__()
         self.TranscriptLine = list()
         self.Expression = list()
@@ -562,13 +700,50 @@ class cLineDefs(QTextBrowser):
         self.Result = ""
         self.filename = ""
         self.basedir = ""
-        font = QFont()
-        font.setPointSize(16)
-        self.setFont(font)
+        # font = QFont()
+        # font.setPointSize(16)
+        # self.setFont(font)
 
         self.setAcceptDrops(False)
         self.setOpenLinks(False)
         self.anchorClicked.connect(self.onDefsAnchorClicked)
+        self.bg = "white"
+        self.eft = "Meiryo"
+        self.efs = 10
+        self.efg = "black"
+        self.rft = "Meiryo"
+        self.rfs = 15
+        self.rfg = "black"
+        self.gft = "courier"
+        self.gfs = 20
+        self.gfg = "green"
+        self.elh = 0
+        self.rlh = 0
+        self.glh = 0
+
+    def settingsupdateEx(self, eft, efs, efg, bg, elh):
+        self.eft = eft
+        self.efs = efs
+        self.efg = efg
+        self.bg = bg
+        self.elh = elh
+        self.lookup(subsList.currentRow)
+
+    def settingsupdateRe(self, rft, rfs, rfg, bg, rlh):
+        self.rft = rft
+        self.rfs = rfs
+        self.rfg = rfg
+        self.bg = bg
+        self.rlh = rlh
+        self.lookup(subsList.currentRow)
+
+    def settingsupdateGl(self, gft, gfs, gfg, bg, glh):
+        self.gft = gft
+        self.gfs = gfs
+        self.gfg = gfg
+        self.bg = bg
+        self.glh = glh
+        self.lookup(subsList.currentRow)
 
     def onDefsAnchorClicked(self, url):
         #print "here: " + url.toString()
@@ -635,7 +810,10 @@ class cLineDefs(QTextBrowser):
         self.lookup(line)
 
     def lookup(self, line):
-        self.clear() # clear linedefs and append matching defs for transcript line
+        #self.clear() # clear linedefs and append matching defs for transcript line
+        LineDefs.setHtml(u"""<html><head><style>body {{ background-color: {0} }})
+                                        </style></head><body></body></html>""".format(self.bg))
+
         if line in self.TranscriptLine:
             index = list()
             for z in range(len(self.TranscriptLine)):
@@ -646,7 +824,9 @@ class cLineDefs(QTextBrowser):
             for z in range(len(index)):
                 html += self.buildDef(self.Expression[index[z]], self.Reading[index[z]], self.Glossary[index[z]], index[z])
 
-            LineDefs.append(self.wrapDefs(html))
+            LineDefs.setHtml(self.wrapDefs(html))
+            #LineDefs.append(self.wrapDefs(html))
+            print self.wrapDefs(html)
 
     def buildDef(self, expression, reading, glossary, index):
         reading = u'<span class = "reading">[{0}]</span>'.format(reading)
@@ -663,15 +843,17 @@ class cLineDefs(QTextBrowser):
         return html
 
     def wrapDefs(self, html):
-        #palette = QApplication.palette()
-        #toolTipBg = palette.color(QPalette.Window).name()
-        #toolTipFg = palette.color(QPalette.WindowText).name()
-
+        # ; color: {0}; font-size: 16pt;
         return u"""
             <html><head><style>
-            body {{ background-color: {0}; color: {1}; font-size: 11pt; }}
-            span.expression {{ font-size: 15pt; }}
-            </style></head><body>""".format("grey", "green") + html + "</body></html>"
+            body {{ background-color: {0} }}
+            span.expression {{ font-size: {1}px; font-family: '{2}'; color: {3}; letter-spacing: {10}px }}
+            span.reading {{ font-size: {4}px; font-family: '{5}'; color: {6}; letter-spacing: {11}px }}
+            span.glossary {{ font-size: {7}px; font-family: '{8}'; color: {9}; letter-spacing: {12}px }}
+            </style></head><body>""".format(self.bg, self.efs, self.eft, self.efg, self.rfs, self.rft, self.rfg, self.gfs, self.gft, self.gfg,self.elh,self.rlh,self.glh) + html + "</body></html>"
+
+            #.format('green', 15, 'serif', 'green', 12, 'serif', 'blue', 10, 'serif','gray') + html + "</body></html>"
+            #body {{ background-color: {0} }}
 
 class editDialog(QDialog):
     def __init__(self, text, index):
@@ -709,54 +891,54 @@ class editDialog(QDialog):
 
 class cSession():
     def __init__(self):
-        pass
+        self.TranscrDir = ""
+        self.DefsDir = ""
+        self.VideoDir = ""
+        self.ThemeDir = ""
+        self.TranscrFile = ""
+        self.DefsFile = ""
+        self.VideoFile = ""
+        self.ThemeFile = ""
 
     def save(self):
         file = open((QtCore.QDir.currentPath() + "/session"), 'w')
         data = {'comboTranscrDir': dockDirSelect.comboTranscrDir,
                 'comboDefsDir': dockDirSelect.comboDefsDir,
                 'comboVideoDir': dockDirSelect.comboVideoDir,
+                'ThemeDir': Settings.ThemeDir,
                 'defsfile': dockDirSelect.comboDefs.currentText(),    # .currentIndex(),
                 'transcrfile': dockDirSelect.comboTranscr.currentText(),
-                'videofile': dockDirSelect.comboVideo.currentText()}
+                'videofile': dockDirSelect.comboVideo.currentText(),
+                'themefile': Settings.comboTheme.currentText()}
 
         pickle.dump(data, file)
         file.close()
 
-        # not sure about this ....
+        # automatic save defs on close. not sure about this ....
         LineDefs.savedefs()
 
         #statusbar.showMessage("Session File Saved: " + (QtCore.QDir.currentPath() + "/session"), 2000)
         print "Session File Saved: " + (QtCore.QDir.currentPath() + "/session")
-        #subsList.currentRow
+        # subsList.currentRow
         # video position
 
-    def restore(self):
+    def load(self):
         try:
             file = open((QtCore.QDir.currentPath() + "/session"), 'r')
             data = pickle.load(file)
             file.close()
-            #print "file closed"
-            dockDirSelect.comboTranscrDir = data['comboTranscrDir']
-            dockDirSelect.comboDefsDir = data['comboDefsDir']
-            dockDirSelect.comboVideoDir = data['comboVideoDir']
 
-            dockDirSelect.populatecombo("tdef", dockDirSelect.comboDefs, dockDirSelect.comboDefsDir, "Definitions")
-            dockDirSelect.populatecombo("srt,ass", dockDirSelect.comboTranscr, dockDirSelect.comboTranscrDir, "Transcript")
-            dockDirSelect.populatecombo("mp4,mkv", dockDirSelect.comboVideo, dockDirSelect.comboVideoDir, "Video")
-
-            # find file, set file in combo
-            dockDirSelect.comboDefs.setCurrentIndex(dockDirSelect.comboDefs.findText(data['defsfile']))
-            dockDirSelect.comboTranscr.setCurrentIndex(dockDirSelect.comboTranscr.findText(data['transcrfile']))
-            dockDirSelect.comboVideo.setCurrentIndex(dockDirSelect.comboVideo.findText(data['videofile']))
-
-            # load file
-            dockDirSelect.settranscrfile()
-            dockDirSelect.setvideofile()
-            dockDirSelect.setdefsfile()
+            self.TranscrDir = data['comboTranscrDir']
+            self.DefsDir = data['comboDefsDir']
+            self.VideoDir = data['comboVideoDir']
+            self.ThemeDir = data['ThemeDir']
+            self.TranscrFile = data['transcrfile']
+            self.DefsFile = data['defsfile']
+            self.VideoFile = data['videofile']
+            self.ThemeFile = data['themefile']
 
             statusbar.showMessage("Session Restored: " + (QtCore.QDir.currentPath() + "/session"))
-
+            statusbar.showMessage("ThemeFile Restored: " + self.ThemeFile)
         finally: # in case no session file yet
             return None
 
@@ -769,50 +951,71 @@ if __name__ == "__main__":
     statusbar = QStatusBar(w)
     w.setStatusBar(statusbar)
 
+# Restore Session
+    Session = cSession()
+    #session.restore()
+    Session.load()
+    qapp.aboutToQuit.connect(Session.save)
+
+# Settings
+    dockSettings = QDockWidget("Settings")
+    Settings =  cSettings(Session)
+    dockSettings.setWidget(Settings)
+    dockSettings.setVisible(False)
+    w.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockSettings)
+
 # Video Player
     dockVideo = QDockWidget("Video Player")
-    qp = QPlayer()
+    qp = QPlayer(Settings) # videodir/videofile
     dockVideo.setWidget(qp)
-    w.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockVideo)
     dockVideo.setMinimumWidth(500)
+    w.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockVideo)
+    ##w.tabifyDockWidget(dockSettings, dockVideo)
+    #w.tabifyDockWidget(dockVideo, dockSettings)
 
 # Transcript List
-    subsList = cSubsList()
+    subsList = cSubsList(Settings) # font, fgcolor, bgcolor
     subsList.itemDoubleClicked.connect(subsList.gotoLine)
     w.setCentralWidget(subsList)
 
 # Vocab and Kanji
-    dockVocab = cDockVocab()
+    dockVocab = cDockVocab(Settings) # font, fgcolor, bgcolor, maxwinht
     w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockVocab)
     dockKanji = cDockKanji()
     w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockKanji)
     dockKanji.hide()
 
 # Line Defs -- add defs load/save
-    LineDefs = cLineDefs()
+    LineDefs = cLineDefs(Settings) # font, fgcolor, bgcolor, maxwinht
     dockLineDefs = QDockWidget("Definitions")
     dockLineDefs.setWidget(LineDefs)
     LineDefs.setMinimumWidth(250) # sets the whole right side
 
 # Lookup Line (Minireader)
-    lookupLine = MiniReader(dockKanji, dockVocab, dockVocab.textVocabDefs, dockKanji.textKanjiDefs, LineDefs)
+    lookupLine = MiniReader(dockKanji, dockVocab, dockVocab.textVocabDefs, dockKanji.textKanjiDefs, LineDefs, Settings) # font, fgcolor, bgcolor, maxwinht
     dockLookupLine = QDockWidget("Transcript Line Lookup")
     dockLookupLine.setWidget(lookupLine)
     dockLookupLine.setMaximumHeight(90)
-
     w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockLookupLine)
     w.addDockWidget(QtCore.Qt.RightDockWidgetArea, dockLineDefs)
 
 # Directory Select
-    dockDirSelect = cDockDirSelect()
+    dockDirSelect = cDockDirSelect(Session)
+    dockDirSelect.setMaximumHeight(70)
+    #dockDirSelect.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
     w.addDockWidget(QtCore.Qt.TopDockWidgetArea, dockDirSelect)
 
-    statusbar.showMessage("Translation Player Started . . .")
-
-# Restore Session
-    session = cSession()
-    session.restore()
-    qapp.aboutToQuit.connect(session.save)
+# Settings
+    Settings.transcriptlist = subsList
+    Settings.lookupline = lookupLine
+    Settings.vocab = dockVocab.textVocabDefs
+    Settings.linedefs = LineDefs
+    Settings.lookuplinedock = dockLookupLine
+    Settings.vocabdock = dockVocab
+    Settings.linedefsdock = dockLineDefs
+    Settings.statusbar = statusbar
+    Settings.loadtheme()
+    #statusbar.showMessage("Translation Player Started . . .")
 
     w.showMaximized()
     qapp.exec_()
