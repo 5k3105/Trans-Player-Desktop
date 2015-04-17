@@ -16,7 +16,7 @@ Japanese transcript resources:
 
 Anime: http://kitsunekko.net/
 
-Drama: http://jpsubbers.x10.mx/Japanese-Subtitles/
+Drama: http://jpsubbers.web44.net/Japanese-Subtitles/
 
 ![ScreenShot](2015-03-16_235702.png)
 
